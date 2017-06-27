@@ -28,7 +28,10 @@ project.ext {
 }
 
 repositories {
-    mavenCentral()
+    //mavenCentral()
+    maven {
+        url "http://nexus.summercamp.local/repository/maven-public/"
+    }
     flatDir {
         dirs 'lib'
     }
@@ -40,6 +43,7 @@ dependencies {
 
 dependencies {
     compile (
+            'com.pi4j:pi4j-core:1.1',
             'io.dropwizard:dropwizard-core:' + dropwizardVersion,
             'com.google.guava:guava:22.0',
             'com.liveperson:dropwizard-websockets:1.1.0',
