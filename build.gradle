@@ -32,13 +32,6 @@ repositories {
     maven {
         url "http://nexus.summercamp.local/repository/maven-public/"
     }
-    flatDir {
-        dirs 'lib'
-    }
-}
-
-dependencies {
-    compile name: 'jfugue-5.0.9'
 }
 
 dependencies {
@@ -47,7 +40,8 @@ dependencies {
             'io.dropwizard:dropwizard-core:' + dropwizardVersion,
             'com.google.guava:guava:22.0',
             'com.liveperson:dropwizard-websockets:1.1.0',
-            'xom:xom:1.2.5'
+            'xom:xom:1.2.5',
+            group: 'com.beust', name: 'jcommander', version: '1.58'
     )
 }
 
