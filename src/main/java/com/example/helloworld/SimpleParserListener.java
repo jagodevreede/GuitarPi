@@ -3,9 +3,13 @@ package com.example.helloworld;
 import org.jfugue.parser.ParserListenerAdapter;
 import org.jfugue.theory.Note;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SimpleParserListener extends ParserListenerAdapter {
 
     private final GuitarPlayer guitarPlayer;
+    private List<Note> notes = new ArrayList<>();
 
     public SimpleParserListener(GuitarPlayer guitarPlayer) {
         this.guitarPlayer = guitarPlayer;
@@ -16,33 +20,18 @@ public class SimpleParserListener extends ParserListenerAdapter {
     }
 
     @Override
-    public void beforeParsingStarts() {
-        System.out.println("Start parsing");
-    }
-
-    @Override
     public void afterParsingFinished() {
-        System.out.println("Done parsing");
-    }
-
-    @Override
-    public void onNotePressed(Note note) {
-        System.out.println("Note press: " + note);
-
-    }
-
-    @Override
-    public void onNoteReleased(Note note) {
-        System.out.println("Note release: " + note);
+        guitarPlayer.playNotes(notes);
+        notes.clear();
     }
 
     @Override
     public void onNoteParsed(Note note) {
-        if (note.isRest()) {
-            return;
+        if (!note.isHarmonicNote() && !notes.isEmpty()) {
+            guitarPlayer.playNotes(notes);
+            notes.clear();
         }
-        System.out.println("Note parsed: " + note);
-        guitarPlayer.playNote(note);
+        notes.add(note);
     }
 
 }

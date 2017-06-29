@@ -4,33 +4,45 @@ package com.example.helloworld;
 import org.jfugue.theory.Note;
 
 public class GuitarNote {
-    private static final short E = 50;
-    private short stringNumber = -1;
-    private short fred;
+    private static final int[] stringStartNote = new int[] { 28, 33, 38, 43, 47, 52};
+    private int stringNumber = -1;
+    private int fred;
 
     public GuitarNote(Note note) {
-        System.out.println("note: " + note.getValue());
-        if (note.getValue() >= 28) {
-            stringNumber = 0;
+        System.out.println("note: " + note.getValue() + " = " + note.toString());
+        for (short i = 0; i < 6; i++) {
+            if (note.getValue() >= stringStartNote[i]) {
+                stringNumber = i;
+            }
         }
-        if (note.getValue() >= 33) {
-            stringNumber = 1;
-        }
-        if (note.getValue() >= 38) {
-            stringNumber = 2;
-        }
-        if (note.getValue() >= 43) {
-            stringNumber = 3;
-        }
-        if (note.getValue() >= 47) {
-            stringNumber = 4;
-        }
-        if (note.getValue() >= 52) {
-            stringNumber = 5;
+        if (stringNumber >= 0) {
+            fred = note.getValue() - stringStartNote[stringNumber];
         }
     }
 
-    public short getStringNumber() {
+    public int getStringNumber() {
         return stringNumber;
+    }
+
+    public int getFred() {
+        return fred;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GuitarNote that = (GuitarNote) o;
+
+        if (stringNumber != that.stringNumber) return false;
+        return fred == that.fred;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = stringNumber;
+        result = 31 * result + fred;
+        return result;
     }
 }
