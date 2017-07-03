@@ -410,7 +410,7 @@ public final class MusicXmlParser extends Parser {
 						for (MidiInstrument mi : currentPart.instruments) {
 							System.out.println(mi);
 						}
-						fireTempoChanged(Integer.parseInt(value));
+						fireTempoChanged((int) Float.parseFloat(value));
 					}
 				}
 			}

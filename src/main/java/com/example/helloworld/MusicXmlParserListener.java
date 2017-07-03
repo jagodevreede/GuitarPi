@@ -6,13 +6,15 @@ import org.jfugue.theory.Note;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleParserListener extends ParserListenerAdapter {
+public class MusicXmlParserListener extends ParserListenerAdapter {
 
     private final GuitarPlayer guitarPlayer;
     private List<Note> notes = new ArrayList<>();
+    private List<GuitarAction> guitarActions = new ArrayList<>();
 
-    public SimpleParserListener(GuitarPlayer guitarPlayer) {
+    public MusicXmlParserListener(GuitarPlayer guitarPlayer) {
         this.guitarPlayer = guitarPlayer;
+        System.out.println("Pre calculation of notes started");
     }
 
     public void onTempoChanged(int tempoBPM) {
@@ -21,14 +23,17 @@ public class SimpleParserListener extends ParserListenerAdapter {
 
     @Override
     public void afterParsingFinished() {
-        guitarPlayer.playNotes(notes);
+        guitarActions.add(guitarPlayer.calculateNotes(notes));
         notes.clear();
+        System.gc();
+        System.out.println("Calculation done starting to play");
+        guitarPlayer.playActions(guitarActions);
     }
 
     @Override
     public void onNoteParsed(Note note) {
         if (!note.isHarmonicNote() && !notes.isEmpty()) {
-            guitarPlayer.playNotes(notes);
+            guitarActions.add(guitarPlayer.calculateNotes(notes));
             notes.clear();
         }
         notes.add(note);

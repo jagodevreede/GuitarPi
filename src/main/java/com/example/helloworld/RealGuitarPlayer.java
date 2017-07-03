@@ -9,7 +9,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     private static final short[] servoLocations = new short[] { 4, 8, 5, 9, 6, 10};
     private static final float[] stringUp = new float[] { 1.4f, 1.3f, 1.3f, 1.4f, 1.3f, 1.36f};
-    private static final float[] stringDown = new float[] { 1.6f, 1.15f, 1.5f, 1.25f, 1.55f, 1.1f};
+    private static final float[] stringDown = new float[] { 1.6f, 1.1f, 1.5f, 1.25f, 1.55f, 1.1f};
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
 
@@ -19,25 +19,25 @@ public class RealGuitarPlayer extends GuitarPlayer {
             {6,6,1,1,-1,-1,-1,-1,-1,-1,-1,-1}, // G
             {13,13,9,9,-1,-1,-1,-1,-1,-1,-1,-1}, // D
             {14,14,10,10,-1,-1,-1,-1,-1,-1,-1,-1}, // B
-            {15,15,11,11,-1,-1,-1,-1,-1,-1,-1,-1}  // E
+            {15,15,11,11,8,8,7,7,-1,-1,-1,-1}  // E
     };
 
     private static final float[][] servoFredPositions= new float[][] {
-            {1.10f,1.80f,1.20f,1.90f,0,0,0,0,0,0,0,0}, // E BAS
+            {1.10f,1.80f,1.10f,1.90f,0,0,0,0,0,0,0,0}, // E BAS
             {1.20f,1.85f,1.10f,2.00f,0,0,0,0,0,0,0,0}, // B
-            {1.20f,1.80f,1.20f,1.80f,0,0,0,0,0,0,0,0}, // G
+            {1.20f,1.85f,1.20f,1.80f,0,0,0,0,0,0,0,0}, // G
             {1.70f,1.00f,1.80f,1.20f,0,0,0,0,0,0,0,0}, // D
             {1.80f,1.20f,1.70f,1.20f,0,0,0,0,0,0,0,0}, // B
-            {1.80f,1.19f,1.9f,1.25f,0,0,0,0,0,0,0,0}  // E
+            {1.85f,1.15f,1.9f,1.25f,1.90f,1.20f,1.65f,1.2f,0,0,0,0}  // E
     };
 
     private static final float[][] servoFredCenterPositions= new float[][] {
-            {1.45f,1.40f,0,0,0,0,0}, // E BAS
+            {1.45f,1.45f,0,0,0,0,0}, // E BAS
             {1.51f,1.51f,0,0,0,0,0}, // B
             {1.51f,1.51f,0,0,0,0,0}, // G
             {1.45f,1.51f,0,0,0,0,0}, // D
-            {1.51f,1.40f,0,0,0,0,0}, // B
-            {1.51f,1.51f,0,0,0,0,0}  // E
+            {1.45f,1.40f,0,0,0,0,0}, // B
+            {1.51f,1.51f,1.50f,1.45f,0,0,0}  // E
     };
 
     private static PCA9685 servoBoardStrings;
@@ -46,10 +46,10 @@ public class RealGuitarPlayer extends GuitarPlayer {
     public RealGuitarPlayer() {
         try {
             servoBoardStrings = new PCA9685(0x40);
-            servoBoardStrings.setPWMFreq(60); // Set frequency Hz
+            servoBoardStrings.setPWMFreq(120); // Set frequency Hz
             TimeUnit.SECONDS.sleep(1);
             servoBoardFreds = new PCA9685(0x41);
-            servoBoardFreds.setPWMFreq(60); // Set frequency Hz
+            servoBoardFreds.setPWMFreq(120); // Set frequency Hz
             TimeUnit.SECONDS.sleep(1);
             close();
             TimeUnit.SECONDS.sleep(1);
@@ -60,11 +60,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
-    int prepareString(GuitarNote gn) {
-        if (gn.getStringNumber() < 0) {
-            return 0;
-        }
-
+    void prepareString(GuitarNote gn) {
         int stringNumber = gn.getStringNumber();
         int fredNumber = gn.getFred();
 
@@ -76,26 +72,22 @@ public class RealGuitarPlayer extends GuitarPlayer {
             if (fredNumber > 0) {
                 System.out.println("Press fred " + fredNumber);
                 servoBoardFreds.setServoPulse(servoFredLocations[stringNumber][fredNumber - 1], servoFredPositions[stringNumber][fredNumber - 1]);
-                return 50;
             }
         }
-        return 0;
     }
 
     void playString(GuitarNote gn) {
-        if (gn.getStringNumber() < 0) {
-            return;
+        if (gn.isHit()) {
+            float toPos;
+            if (isStringUp[gn.getStringNumber()]) {
+                toPos = stringDown[gn.getStringNumber()];
+                isStringUp[gn.getStringNumber()] = false;
+            } else {
+                toPos = stringUp[gn.getStringNumber()];
+                isStringUp[gn.getStringNumber()] = true;
+            }
+            servoBoardStrings.setServoPulse(servoLocations[gn.getStringNumber()], toPos);
         }
-
-        float toPos;
-        if (isStringUp[gn.getStringNumber()]) {
-            toPos = stringDown[gn.getStringNumber()];
-            isStringUp[gn.getStringNumber()] = false;
-        } else {
-            toPos = stringUp[gn.getStringNumber()];
-            isStringUp[gn.getStringNumber()] = true;
-        }
-        servoBoardStrings.setServoPulse(servoLocations[gn.getStringNumber()], toPos);
     }
 
     @Override
@@ -110,6 +102,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
         for (int i = 0; i < servoFredLocations[0].length; i++) {
             if (servoFredLocations[stringNumber][i] > -1) {
                 servoBoardFreds.setServoPulse(servoFredLocations[stringNumber][i], servoFredCenterPositions[stringNumber][i/2]);
+                System.out.println("fred servo "+ servoFredLocations[stringNumber][i] + " pos "  + servoFredCenterPositions[stringNumber][i/2]);
             }
         }
     }

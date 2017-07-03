@@ -31,7 +31,7 @@ public class MusicXmlTest {
         text = text.replaceAll("http://www.musicxml.org/dtds/partwise.dtd", "musicxml/partwise.dtd");
 
         MusicXmlParser parser = new MusicXmlParser();
-        //SimpleParserListener simpleParserListener = new SimpleParserListener();
+        //MusicXmlParserListener simpleParserListener = new MusicXmlParserListener();
        // parser.addParserListener(simpleParserListener);
 
         parser.parse(text);

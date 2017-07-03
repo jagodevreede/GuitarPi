@@ -3,7 +3,6 @@ package com.example.helloworld;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.jfugue.integration.MusicXmlParser;
-import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
@@ -45,7 +44,7 @@ public class GuitarPi {
         text = text.replaceAll("http://www.musicxml.org/dtds/partwise.dtd", "musicxml/partwise.dtd");
 
         MusicXmlParser parser = new MusicXmlParser();
-        SimpleParserListener simpleParserListener = new SimpleParserListener(gp);
+        MusicXmlParserListener simpleParserListener = new MusicXmlParserListener(gp);
         parser.addParserListener(simpleParserListener);
 
         parser.parse(text);

@@ -6,18 +6,31 @@ import org.jfugue.theory.Note;
 public class GuitarNote {
     private static final int[] stringStartNote = new int[] { 28, 33, 38, 43, 47, 52};
     private int stringNumber = -1;
-    private int fred;
+    private int fred = 0;
+    private boolean hit = true;
+    private String name;
 
     public GuitarNote(Note note) {
-        System.out.println("note: " + note.getValue() + " = " + note.toString());
+        name = note.toString();
+        int noteValue = note.getValue();
+       /* if (noteValue > 56) {
+            noteValue -= 12;
+            System.out.println("Note " + note + " is to high (" + note.getValue() + ") using a octave lower");
+        }*/
         for (short i = 0; i < 6; i++) {
-            if (note.getValue() >= stringStartNote[i]) {
+            if (noteValue >= stringStartNote[i]) {
                 stringNumber = i;
             }
         }
         if (stringNumber >= 0) {
-            fred = note.getValue() - stringStartNote[stringNumber];
+            fred = noteValue - stringStartNote[stringNumber];
         }
+    }
+
+    public GuitarNote(int stringNumber, int fred, boolean hit) {
+        this.stringNumber = stringNumber;
+        this.fred = fred;
+        this.hit = hit;
     }
 
     public int getStringNumber() {
@@ -26,6 +39,10 @@ public class GuitarNote {
 
     public int getFred() {
         return fred;
+    }
+
+    public boolean isHit() {
+        return hit;
     }
 
     @Override
@@ -44,5 +61,19 @@ public class GuitarNote {
         int result = stringNumber;
         result = 31 * result + fred;
         return result;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "GuitarNote{" +
+                "stringNumber=" + stringNumber +
+                ", fred=" + fred +
+                ", hit=" + hit +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
