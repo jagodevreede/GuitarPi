@@ -24,20 +24,18 @@ buildscript {
 
 // Set our project variables
 project.ext {
-    dropwizardVersion = '1.1.0'
+    dropwizardVersion = '1.1.2'
 }
 
 repositories {
-    //mavenCentral()
-    maven {
-        url "http://nexus.summercamp.local/repository/maven-public/"
-    }
+    mavenCentral()
 }
 
 dependencies {
     compile (
             'com.pi4j:pi4j-core:1.1',
             'io.dropwizard:dropwizard-core:' + dropwizardVersion,
+            'io.dropwizard:dropwizard-assets:'+ dropwizardVersion,
             'com.google.guava:guava:22.0',
             'com.liveperson:dropwizard-websockets:1.1.0',
             'xom:xom:1.2.5',
