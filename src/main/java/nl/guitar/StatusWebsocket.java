@@ -2,6 +2,9 @@ package nl.guitar;
 
 import com.codahale.metrics.annotation.Metered;
 import com.codahale.metrics.annotation.Timed;
+import nl.guitar.player.GuitarPlayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.websocket.Session;
 import javax.websocket.CloseReason;
@@ -17,11 +20,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Timed
 @ServerEndpoint("/status-ws")
 public class StatusWebsocket {
+    private static final Logger logger = LoggerFactory.getLogger(StatusWebsocket.class);
 
     private static List<Session> sessions = new CopyOnWriteArrayList<>();
 
     @OnOpen
     public void onOpen(final Session session) throws IOException {
+        logger.info("Client started connection");
         session.getAsyncRemote().sendText("welcome");
         sessions.add(session);
     }
@@ -34,11 +39,12 @@ public class StatusWebsocket {
 
     @OnClose
     public void onClose(final Session session, CloseReason cr) {
+        logger.info("Client closed connection");
         sessions.remove(session);
     }
 
     public static void sendToAll(String message) {
-        System.out.println("To all: " + message);
+        logger.debug("To all: " + message);
         for (Session session : sessions) {
             session.getAsyncRemote().sendText(message);
         }

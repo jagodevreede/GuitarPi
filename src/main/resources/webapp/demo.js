@@ -97,7 +97,15 @@
     }
 
     function initSocket() {
-        var connection = new WebSocket('ws://localhost:8080/status-ws');
+        var loc = window.location, new_uri;
+        if (loc.protocol === "https:") {
+            new_uri = "wss:";
+        } else {
+            new_uri = "ws:";
+        }
+        new_uri += "//" + loc.host;
+        new_uri += loc.pathname + "status-ws";
+        var connection = new WebSocket(new_uri);
 
         connection.onmessage = function (e) {
           console.log('Server: ' + e.data);
