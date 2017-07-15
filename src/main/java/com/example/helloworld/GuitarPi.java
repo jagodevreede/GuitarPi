@@ -2,6 +2,10 @@ package com.example.helloworld;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import nl.guitar.musicxml.MusicXmlParserListener;
+import nl.guitar.player.ConsoleGuitarPlayer;
+import nl.guitar.player.GuitarPlayer;
+import nl.guitar.player.RealGuitarPlayer;
 import org.jfugue.integration.MusicXmlParser;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;

@@ -172,18 +172,18 @@ public class Rhythm implements PatternProducer
     }
 
     /** 
-     * Sets an alt layer that will recur every recurrence times *after* the start index is reached.
-     * If the start index is 2 and the recurrence is 5, this alt layer will be used every time 
-     * the segment % recurrence == start. By default, this has a Z-Order of 1.
+     * Sets an alt layer that will recur every recurrence times *after* the load index is reached.
+     * If the load index is 2 and the recurrence is 5, this alt layer will be used every time
+     * the segment % recurrence == load. By default, this has a Z-Order of 1.
      */
 	public Rhythm addRecurringAltLayer(int layer, int start, int end, int recurrence, String rhythmString) {
 		return addRecurringAltLayer(layer, start, end, recurrence, rhythmString, 1);
 	}
 
     /** 
-     * Sets an alt layer that will recur every recurrence times *after* the start index is reached.
-     * If the start index is 2 and the recurrence is 5, this alt layer will be used every time 
-     * the segment % recurrence == start
+     * Sets an alt layer that will recur every recurrence times *after* the load index is reached.
+     * If the load index is 2 and the recurrence is 5, this alt layer will be used every time
+     * the segment % recurrence == load
      */
 	public Rhythm addRecurringAltLayer(int layer, int start, int end, int recurrence, String rhythmString, int zOrder) {
 		getAltLayersForLayer(layer).add(new AltLayer(start, end, recurrence, rhythmString, null, zOrder));
@@ -191,7 +191,7 @@ public class Rhythm implements PatternProducer
 	}
 
 	/**
-	 * Sets an alt layer that will play between and including the start and end indices. 
+	 * Sets an alt layer that will play between and including the load and end indices.
 	 * By default, this has a Z-Order of 2.
 	 */
 	public Rhythm addRangedAltLayer(int layer, int start, int end, String rhythmString) {
@@ -199,7 +199,7 @@ public class Rhythm implements PatternProducer
 	}
 	
 	/**
-	 * Sets an alt layer that will play between and including the start and end indices. 
+	 * Sets an alt layer that will play between and including the load and end indices.
 	 */
 	public Rhythm addRangedAltLayer(int layer, int start, int end, String rhythmString, int zOrder) {
 		getAltLayersForLayer(layer).add(new AltLayer(start, end, -1, rhythmString, null, zOrder));
@@ -383,7 +383,7 @@ public class Rhythm implements PatternProducer
     			return true;
     		}
     		
-    		// Check if we're in the right range of start and end indexes, and check the recurrence
+    		// Check if we're in the right range of load and end indexes, and check the recurrence
     		if ((segment >= startIndex) && (segment <= endIndex)) {
     			if (recurrence == -1) return true;
     			if ((recurrence != -1) && (segment % (recurrence) == startIndex)) return true;

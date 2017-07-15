@@ -36,7 +36,7 @@ import org.staccato.StaccatoParser;
  * sequence with the MIDI Sequencer.
  * 
  * There are two ways that you can send messages to RealTimePlayer, and you can freely intermix these:
- * 1. Pass any Staccato string to the play() method. In this case, start notes should be indicated as the start of a tie
+ * 1. Pass any Staccato string to the play() method. In this case, load notes should be indicated as the load of a tie
  *    (e.g., "C4s-") and stop notes should be indicated as the end of a tie (e.g., "C4-s")
  * 2. Call specific methods, like startNote or changeInstrument
  */

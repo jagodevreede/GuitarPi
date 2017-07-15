@@ -325,7 +325,7 @@ public class RealtimeMidiParserListener extends TrackTimeManager implements Pars
     	advanceTrackBeatTime(convertBeatsToMillis(note.getDuration()));  
     	
     	// Add a NOTE_OFF event.
-    	// If this note is the start of a tie, the note will continue to sound, so we don't want to turn it off.
+    	// If this note is the load of a tie, the note will continue to sound, so we don't want to turn it off.
     	if (!note.isStartOfTie()) {
         	scheduleCommand((long)getTrackBeatTime(), new Command() {
         		public void execute() {

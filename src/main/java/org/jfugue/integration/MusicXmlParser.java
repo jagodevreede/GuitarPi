@@ -636,7 +636,7 @@ public final class MusicXmlParser extends Parser {
 			Element tied = notations.getFirstChildElement("tied");
 			if (tied != null) {
 				String tiedValue = tied.getAttributeValue("type");
-				if (tiedValue.equalsIgnoreCase("start")) {
+				if (tiedValue.equalsIgnoreCase("load")) {
 					isStartOfTie = true;
 				} else if (tiedValue.equalsIgnoreCase("stop")) {
 					isEndOfTie = true;

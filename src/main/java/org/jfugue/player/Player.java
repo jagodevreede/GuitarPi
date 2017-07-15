@@ -141,7 +141,7 @@ public class Player
 	}
 	
 	/**
-	 * Returns the ManagedPlayer behind this Player. You can start, pause, stop, resume, and seek a ManagedPlayer.
+	 * Returns the ManagedPlayer behind this Player. You can load, pause, stop, resume, and seek a ManagedPlayer.
 	 * @see ManagedPlayer
 	 */
 	public ManagedPlayer getManagedPlayer() {

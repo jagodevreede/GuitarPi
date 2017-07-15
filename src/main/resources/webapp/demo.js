@@ -1,31 +1,12 @@
 /*jslint browser:true */
 (function () {
     "use strict";
+
+    var demos = {};
+
     var OSMD;
     // The folder of the demo files
-    var folder = "sheets/",
-    // The available demos
-        demos = {
-            "M. Clementi - Sonatina Op.36 No.1 Pt.1": "MuzioClementi_SonatinaOpus36No1_Part1.xml",
-            "M. Clementi - Sonatina Op.36 No.1 Pt.2": "MuzioClementi_SonatinaOpus36No1_Part2.xml",
-            "M. Clementi - Sonatina Op.36 No.3 Pt.1": "MuzioClementi_SonatinaOpus36No3_Part1.xml",
-            "M. Clementi - Sonatina Op.36 No.3 Pt.2": "MuzioClementi_SonatinaOpus36No3_Part2.xml",
-            "J.S. Bach - Air": "JohannSebastianBach_Air.xml",
-            "G.P. Telemann - Sonata, TWV 40:102 - 1. Dolce": "TelemannWV40.102_Sonate-Nr.1.1-Dolce.xml",
-            "C. Gounod - Meditation": "CharlesGounod_Meditation.xml",
-            "J.S. Bach - Praeludium In C Dur BWV846 1": "JohannSebastianBach_PraeludiumInCDur_BWV846_1.xml",
-            "J. Haydn - Concertante Cello": "JosephHaydn_ConcertanteCello.xml",
-            "S. Joplin - Elite Syncopations": "ScottJoplin_EliteSyncopations.xml",
-            "S. Joplin - The Entertainer": "ScottJoplin_The_Entertainer.xml",
-            "ActorPreludeSample": "ActorPreludeSample.xml",
-            "an chloe - mozart": "an chloe - mozart.xml",
-            "Beethoven - AnDieFerneGeliebte": "AnDieFerneGeliebte_Beethoven.xml",
-            "das veilchen - mozart": "das veilchen - mozart.xml",
-            "Dichterliebe01": "Dichterliebe01.xml",
-            "mandoline - debussy": "mandoline - debussy.xml",
-            "MozartTrio": "MozartTrio.mxl",
-        },
-
+    var folder = "/api/music/load/",
         zoom = 1.0,
     // HTML Elements in the page
         err,
@@ -35,13 +16,14 @@
         zoomIn,
         zoomOut,
         custom,
-        nextCursorBtn,
-        resetCursorBtn,
-        showCursorBtn,
-        hideCursorBtn;
+        startBtn,
+        stopBtn,
+        firstNote;
 
     // Initialization code
     function init() {
+        initSocket();
+
         var name, option;
 
         err = document.getElementById("error-td");
@@ -51,10 +33,8 @@
         zoomIn = document.getElementById("zoom-in-btn");
         zoomOut = document.getElementById("zoom-out-btn");
         canvas = document.createElement("div");
-        nextCursorBtn = document.getElementById("next-cursor-btn");
-        resetCursorBtn = document.getElementById("reset-cursor-btn");
-        showCursorBtn = document.getElementById("show-cursor-btn");
-        hideCursorBtn = document.getElementById("hide-cursor-btn");
+        startBtn = document.getElementById("start-btn");
+        stopBtn = document.getElementById("stop-btn");
 
         // Hide error
         error();
@@ -108,18 +88,35 @@
                 OSMD.cursor.next();
             }
         });
-        nextCursorBtn.addEventListener("click", function() {
-            OSMD.cursor.next();
+        startBtn.addEventListener("click", function() {
+          $.post( "/api/music/start");
         });
-        resetCursorBtn.addEventListener("click", function() {
-            OSMD.cursor.reset();
+        stopBtn.addEventListener("click", function() {
+            $.post( "/api/music/stop");
         });
-        hideCursorBtn.addEventListener("click", function() {
-            OSMD.cursor.hide();
-        });
-        showCursorBtn.addEventListener("click", function() {
-            OSMD.cursor.show();
-        });
+    }
+
+    function initSocket() {
+        var connection = new WebSocket('ws://localhost:8080/status-ws');
+
+        connection.onmessage = function (e) {
+          console.log('Server: ' + e.data);
+          if ("start" === e.data) {
+             OSMD.cursor.show();
+             OSMD.cursor.reset();
+             firstNote = true;
+          } else if ("stop" === e.data) {
+             OSMD.cursor.hide();
+          } else if ("next" === e.data) {
+             if (!firstNote) {
+                OSMD.cursor.next();
+             } else {
+                firstNote = false;
+             }
+          } else {
+             console.log('Unknown command ' + e.data);
+          }
+        };
     }
 
     function Resize(startCallback, endCallback) {
@@ -158,6 +155,7 @@
             str = folder + select.value;
         }
         zoom = 1.0;
+
         OSMD.load(str).then(
             function() {
                 return OSMD.render();
@@ -216,8 +214,15 @@
 
     // Register events: load, drag&drop
     window.addEventListener("load", function() {
-        init();
-        selectOnChange();
+        $.get( "/api/music/list", function( data ) {
+            var arrayLength = data.length;
+            for (var i = 0; i < arrayLength; i++) {
+                demos[data[i]] = data[i]
+            }
+            init();
+            selectOnChange();
+        });
+
     });
 
 }());

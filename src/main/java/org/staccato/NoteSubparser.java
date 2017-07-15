@@ -148,7 +148,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
     }
 
     /**
-     * Returns the index with which to start parsing the next part of the
+     * Returns the index with which to load parsing the next part of the
      * string, once this method is done with its part
      */
     private int parseRoot(String s, int index, NoteContext context) {
@@ -166,7 +166,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         }
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseLetterNote(String s, int index, NoteContext context) {
         context.isNumericNote = false;
         int originalIndex = index;
@@ -204,7 +204,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index;
    }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseRest(String s, int index, NoteContext context) {
         context.isRest = true;
         logger.info("This note is a Rest");
@@ -221,7 +221,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return indexOfEndBracket+1;
     }
 
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseNumericNote(String s, int index, NoteContext context) {
     	int numCharsInNumber = 0;
     	while (numCharsInNumber < s.length() && (s.charAt(index+numCharsInNumber) >= '0') && (s.charAt(index+numCharsInNumber) <= '9')) {
@@ -235,7 +235,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index+numCharsInNumber;
     }
 
-     /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+     /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseOctave(String s, int index, NoteContext context) {
         context.isOctaveExplicitlySet = false;
         
@@ -301,7 +301,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         }
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseInternalInterval(String s, int index, NoteContext context) {
     	if (context.isRest) {
     		return index;
@@ -333,7 +333,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return (((ch >= '0') && (ch <= '9')) || (ch == '#') || (ch == 'B'));
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseChord(String s, int index, NoteContext context) {
         // Don't parse chord for a rest 
         if (context.isRest) {
@@ -357,7 +357,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index + lengthOfChordString;
     }
 
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseChordInversion(String s, int index, NoteContext context) {
         if (!context.isChord) {
             return index;
@@ -459,7 +459,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         }
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseDuration(String s, int index, NoteContext noteContext, StaccatoParserContext parserContext) {
         if (index < s.length()) {
             switch (s.charAt(index)) {
@@ -486,7 +486,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index;
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseNumericDuration(String s, int index, NoteContext context) {
     	// The duration has come in as a number, like 0.25 for a quarter note.
         // Advance pointer past the initial slash (/)
@@ -516,7 +516,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index;
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseQuantityDuration(String s, int index, NoteContext context) {
         // A quantity is associated with the duration, like the '24' in "w24"
         int endingIndex = seekToEndOfDecimal(s,index);
@@ -534,7 +534,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return cursor;
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseLetterDuration(String s, int index, NoteContext context, StaccatoParserContext parserContext) {
         boolean moreDurationCharsToParse = true;
         boolean isDotted = false;
@@ -550,7 +550,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
                                    logger.info("Note is end of tie");
                                } else {
                                    context.isStartOfTie = true;
-                                   logger.info("Note is start of tie");
+                                   logger.info("Note is load of tie");
                                }
                                break;
                     case 'W' : durationNumber = 1; break;
@@ -592,7 +592,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index;
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseTuplet(String s, int index, NoteContext context) {
         if (index < s.length()) {
             if (s.charAt(index) == '*') {
@@ -645,7 +645,7 @@ public class NoteSubparser implements Subparser, NoteProvider, ChordProvider {
         return index;
     }
     
-    /** Returns the index with which to start parsing the next part of the string, once this method is done with its part */
+    /** Returns the index with which to load parsing the next part of the string, once this method is done with its part */
     private int parseVelocity(String s, int index, NoteContext context) {
         // Don't compute note velocity for a rest 
         if (context.isRest) {
