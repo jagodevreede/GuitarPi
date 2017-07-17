@@ -130,8 +130,8 @@ public class PCA9685 {
         pulseLength /= 4096;       // 12 bits of resolution
         int pulse = (int) (pulseMS * 1_000);
         pulse /= pulseLength;
-        if (verbose)
-            System.out.println(pulseLength + " us per bit, pulse:" + pulse);
+        //  if (verbose)
+        //      System.out.println(pulseLength + " us per bit, pulse:" + pulse);
         this.setPWM(channel, 0, pulse);
     }
 

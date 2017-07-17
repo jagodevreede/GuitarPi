@@ -6,6 +6,7 @@ import i2c.servo.pwm.PCA9685;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 public class RealGuitarPlayer extends GuitarPlayer {
@@ -14,7 +15,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     private static final short[] servoLocations = new short[] { 4, 8, 5, 9, 6, 10};
     private static final float[] stringUp = new float[] { 1.4f, 1.3f, 1.3f, 1.4f, 1.3f, 1.36f};
-    private static final float[] stringDown = new float[] { 1.6f, 1.1f, 1.5f, 1.25f, 1.55f, 1.1f};
+    private static final float[] stringDown = new float[] { 1.6f, 1.1f, 1.55f, 1.25f, 1.57f, 1.1f};
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
 
@@ -39,7 +40,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     private static final float[][] servoFredCenterPositions= new float[][] {
             {1.45f,1.45f,0,0,0,0,0}, // E BAS
             {1.51f,1.51f,0,0,0,0,0}, // B
-            {1.51f,1.51f,0,0,0,0,0}, // G
+            {1.51f,1.55f,0,0,0,0,0}, // G
             {1.45f,1.51f,0,0,0,0,0}, // D
             {1.45f,1.40f,0,0,0,0,0}, // B
             {1.51f,1.51f,1.50f,1.45f,0,0,0}  // E
@@ -51,10 +52,10 @@ public class RealGuitarPlayer extends GuitarPlayer {
     static {
         try {
             servoBoardStrings = new PCA9685(0x40);
-            servoBoardStrings.setPWMFreq(120); // Set frequency Hz
+            servoBoardStrings.setPWMFreq(100); // Set frequency Hz
             TimeUnit.SECONDS.sleep(1);
             servoBoardFreds = new PCA9685(0x41);
-            servoBoardFreds.setPWMFreq(120); // Set frequency Hz
+            servoBoardFreds.setPWMFreq(100); // Set frequency Hz
             TimeUnit.SECONDS.sleep(1);
         } catch (I2CFactory.UnsupportedBusNumberException | InterruptedException | UnsatisfiedLinkError e) {
             logger.error("Failed to load real guitar player", e);
@@ -106,8 +107,8 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
-    protected void resetFreds() {
-        super.resetFreds();
+    public void resetFreds() {
+        logger.info("Resetting freds");
         for (int i = 0; i < 6; i++) {
             resetFred(i);
         }

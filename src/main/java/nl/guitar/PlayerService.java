@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerService {
@@ -29,6 +30,7 @@ public class PlayerService {
         for (File file : new File("./").listFiles((f) -> f.getName().endsWith(".xml"))) {
             result.add(file.getName().substring(0, file.getName().length() - 4));
         }
+        Collections.sort(result);
         return result;
     }
 
@@ -63,4 +65,11 @@ public class PlayerService {
         guitarPlayer.stop();
     }
 
+    public void reset() {
+        try {
+            guitarPlayer.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

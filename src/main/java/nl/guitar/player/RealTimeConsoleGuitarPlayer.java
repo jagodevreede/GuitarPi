@@ -27,6 +27,11 @@ public class RealTimeConsoleGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
+    public void resetFreds() {
+        logger.info("Resetting freds");
+    }
+
+    @Override
     protected void waitMilliseconds(long waitTimeMS) {
         super.waitMilliseconds(waitTimeMS);
         playTime += waitTimeMS;

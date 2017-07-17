@@ -85,9 +85,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
         StatusWebsocket.sendToAll("stop");
     }
 
-    protected void resetFreds() {
-
-    }
+    abstract public void resetFreds();
 
     protected void waitMilliseconds(long waitTimeMS) {
         try {

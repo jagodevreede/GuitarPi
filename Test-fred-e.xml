@@ -93,9 +93,9 @@
           </direction-type>
         <sound tempo="80"/>
         </direction>
-      <note default-x="75.17" default-y="-60.00">
+      <note default-x="75.17" default-y="-75.00">
         <pitch>
-          <step>A</step>
+          <step>E</step>
           <octave>2</octave>
           </pitch>
         <duration>1</duration>
@@ -103,9 +103,19 @@
         <type>quarter</type>
         <stem>up</stem>
         </note>
-      <note default-x="134.22" default-y="-60.00">
+      <note default-x="134.22" default-y="-70.00">
         <pitch>
-          <step>A</step>
+          <step>F</step>
+          <octave>2</octave>
+          </pitch>
+        <duration>1</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <stem>up</stem>
+        </note>
+      <note default-x="193.26" default-y="-70.00">
+        <pitch>
+          <step>F</step>
           <alter>1</alter>
           <octave>2</octave>
           </pitch>
@@ -113,22 +123,12 @@
         <voice>1</voice>
         <type>quarter</type>
         <accidental>sharp</accidental>
-        <stem>up</stem>
-        </note>
-      <note default-x="193.26" default-y="-55.00">
-        <pitch>
-          <step>B</step>
-          <octave>2</octave>
-          </pitch>
-        <duration>1</duration>
-        <voice>1</voice>
-        <type>quarter</type>
         <stem>down</stem>
         </note>
-      <note default-x="252.31" default-y="-50.00">
+      <note default-x="252.31" default-y="-65.00">
         <pitch>
-          <step>C</step>
-          <octave>3</octave>
+          <step>G</step>
+          <octave>2</octave>
           </pitch>
         <duration>1</duration>
         <voice>1</voice>
@@ -137,11 +137,11 @@
         </note>
       </measure>
     <measure number="2" width="217.45">
-      <note default-x="20.42" default-y="-50.00">
+      <note default-x="20.42" default-y="-65.00">
         <pitch>
-          <step>C</step>
+          <step>G</step>
           <alter>1</alter>
-          <octave>3</octave>
+          <octave>2</octave>
           </pitch>
         <duration>1</duration>
         <voice>1</voice>

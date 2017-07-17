@@ -16,6 +16,7 @@
         zoomIn,
         zoomOut,
         custom,
+        resetBtn,
         startBtn,
         stopBtn,
         firstNote;
@@ -33,6 +34,7 @@
         zoomIn = document.getElementById("zoom-in-btn");
         zoomOut = document.getElementById("zoom-out-btn");
         canvas = document.createElement("div");
+        resetBtn = document.getElementById("reset-btn");
         startBtn = document.getElementById("start-btn");
         stopBtn = document.getElementById("stop-btn");
 
@@ -93,6 +95,9 @@
         });
         stopBtn.addEventListener("click", function() {
             $.post( "/api/music/stop");
+        });
+        resetBtn.addEventListener("click", function() {
+            $.post( "/api/music/reset");
         });
     }
 

@@ -49,9 +49,15 @@ public class MusicResource {
     @Path("stop")
     public Response stop(@Context HttpServletRequest request) {
 	    playerService.stop();
-        executorService.shutdown();
         return Response.ok().build();
     }
+
+	@POST
+	@Path("reset")
+	public Response reset(@Context HttpServletRequest request) {
+		playerService.reset();
+		return Response.ok().build();
+	}
 
 	@GET
     @Path("load/{path}")

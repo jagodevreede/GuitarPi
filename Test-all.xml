@@ -91,7 +91,7 @@
             <per-minute>240</per-minute>
             </metronome>
           </direction-type>
-        <sound tempo="240"/>
+        <sound tempo="120"/>
         </direction>
       <note default-x="75.17" default-y="-75.00">
         <pitch>

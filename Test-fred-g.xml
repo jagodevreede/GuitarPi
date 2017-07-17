@@ -59,12 +59,12 @@
       </score-part>
     </part-list>
   <part id="P1">
-    <measure number="1" width="312.95">
+    <measure number="1" width="373.54">
       <print>
         <system-layout>
           <system-margins>
             <left-margin>-0.00</left-margin>
-            <right-margin>547.09</right-margin>
+            <right-margin>703.96</right-margin>
             </system-margins>
           <top-system-distance>170.00</top-system-distance>
           </system-layout>
@@ -93,21 +93,21 @@
           </direction-type>
         <sound tempo="80"/>
         </direction>
-      <note default-x="75.17" default-y="-60.00">
+      <note default-x="75.17" default-y="-30.00">
         <pitch>
-          <step>A</step>
-          <octave>2</octave>
+          <step>G</step>
+          <octave>3</octave>
           </pitch>
         <duration>1</duration>
         <voice>1</voice>
         <type>quarter</type>
         <stem>up</stem>
         </note>
-      <note default-x="134.22" default-y="-60.00">
+      <note default-x="147.12" default-y="-30.00">
         <pitch>
-          <step>A</step>
+          <step>G</step>
           <alter>1</alter>
-          <octave>2</octave>
+          <octave>3</octave>
           </pitch>
         <duration>1</duration>
         <voice>1</voice>
@@ -115,31 +115,19 @@
         <accidental>sharp</accidental>
         <stem>up</stem>
         </note>
-      <note default-x="193.26" default-y="-55.00">
+      <note default-x="219.06" default-y="-25.00">
         <pitch>
-          <step>B</step>
-          <octave>2</octave>
+          <step>A</step>
+          <octave>3</octave>
           </pitch>
         <duration>1</duration>
         <voice>1</voice>
         <type>quarter</type>
         <stem>down</stem>
         </note>
-      <note default-x="252.31" default-y="-50.00">
+      <note default-x="291.00" default-y="-25.00">
         <pitch>
-          <step>C</step>
-          <octave>3</octave>
-          </pitch>
-        <duration>1</duration>
-        <voice>1</voice>
-        <type>quarter</type>
-        <stem>up</stem>
-        </note>
-      </measure>
-    <measure number="2" width="217.45">
-      <note default-x="20.42" default-y="-50.00">
-        <pitch>
-          <step>C</step>
+          <step>A</step>
           <alter>1</alter>
           <octave>3</octave>
           </pitch>
@@ -148,18 +136,6 @@
         <type>quarter</type>
         <accidental>sharp</accidental>
         <stem>up</stem>
-        </note>
-      <note>
-        <rest/>
-        <duration>1</duration>
-        <voice>1</voice>
-        <type>quarter</type>
-        </note>
-      <note>
-        <rest/>
-        <duration>2</duration>
-        <voice>1</voice>
-        <type>half</type>
         </note>
       <barline location="right">
         <bar-style>light-heavy</bar-style>

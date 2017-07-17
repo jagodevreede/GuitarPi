@@ -19,7 +19,7 @@ public class TestController {
         } catch (I2CFactory.UnsupportedBusNumberException e) {
             throw new RuntimeException(e);
         }
-        servoBoard.setPWMFreq(120); // Set frequency Hz
+        servoBoard.setPWMFreq(100); // Set frequency Hz
 
         System.out.println("Using i2c address " + Integer.toHexString(address) + ":" + Integer.parseInt(args[1]) + " pulse: " + Float.parseFloat(args[2]));
         servoBoard.setServoPulse(Integer.parseInt(args[1]), Float.parseFloat(args[2]));

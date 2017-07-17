@@ -35,6 +35,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
         logger.info("Calculation done starting to play");
         guitarPlayer.playActions(guitarActions);
         guitarActions.clear();
+        guitarPlayer.resetFreds();
         logger.info("Done playing");
     }
 

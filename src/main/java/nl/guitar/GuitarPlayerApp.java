@@ -35,6 +35,8 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 		Class<?> clazz = Class.forName(GuitarPlayer.class.getPackage().getName() + "." + config.getImplementation() + "GuitarPlayer");
 		GuitarPlayer guitarPlayer = (GuitarPlayer) clazz.newInstance();
 
+		guitarPlayer.resetFreds();
+
 		PlayerService playerService = new PlayerService(guitarPlayer);
 
 		environment.jersey().register(new MusicResource(playerService));
