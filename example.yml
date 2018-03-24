@@ -2,6 +2,9 @@
 implementation: RealTimeConsole
 #implementation: Real
 
+#controller: StubController
+controller: RealController
+
 server:
   applicationConnectors:
     - type: http

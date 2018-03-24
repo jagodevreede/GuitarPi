@@ -1,5 +1,6 @@
 package nl.guitar.player;
 
+import nl.guitar.controlers.Controller;
 import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,10 @@ public class RealTimeConsoleGuitarPlayer extends GuitarPlayer {
 
     private long playTime = 0;
     private Set<GuitarNote> notesPlayed = new HashSet<>();
+
+    public RealTimeConsoleGuitarPlayer(Controller controller) {
+        super(controller);
+    }
 
     @Override
     void prepareString(GuitarNote gn) {

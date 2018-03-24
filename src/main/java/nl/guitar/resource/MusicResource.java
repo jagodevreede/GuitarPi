@@ -1,5 +1,6 @@
-package nl.guitar;
+package nl.guitar.resource;
 
+import nl.guitar.PlayerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

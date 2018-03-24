@@ -1,6 +1,7 @@
 package nl.guitar;
 
-
+import nl.guitar.controlers.Controller;
+import nl.guitar.data.ConfigRepository;
 import nl.guitar.player.GuitarPlayer;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -8,10 +9,16 @@ import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 
 import io.dropwizard.websockets.WebsocketBundle;
+import nl.guitar.resource.ConfigResource;
+import nl.guitar.resource.MusicResource;
+import nl.guitar.resource.TestResource;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration.Dynamic;
 
@@ -31,15 +38,24 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 	}
 
 	@Override
-	public void run(GuitarAppConfiguration config, Environment environment) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+	public void run(GuitarAppConfiguration config, Environment environment) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+		ConfigRepository configRepository = new ConfigRepository();
+
+		Class<?> controllerClazz = Class.forName(Controller.class.getPackage().getName() + "." + config.getController());
+		Constructor<?> controllerConstructor = controllerClazz.getConstructor();
+		Controller controller = (Controller) controllerConstructor.newInstance();
+
 		Class<?> clazz = Class.forName(GuitarPlayer.class.getPackage().getName() + "." + config.getImplementation() + "GuitarPlayer");
-		GuitarPlayer guitarPlayer = (GuitarPlayer) clazz.newInstance();
+		Constructor<?> constructor = clazz.getConstructor(Controller.class);
+		GuitarPlayer guitarPlayer = (GuitarPlayer) constructor.newInstance(controller);
 
 		guitarPlayer.resetFreds();
 
 		PlayerService playerService = new PlayerService(guitarPlayer);
 
 		environment.jersey().register(new MusicResource(playerService));
+		environment.jersey().register(new ConfigResource(configRepository));
+		environment.jersey().register(new TestResource(configRepository, controller));
 
     	((DefaultServerFactory) config.getServerFactory()).setJerseyRootPath("/api/*");
     	

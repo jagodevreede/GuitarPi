@@ -1,6 +1,7 @@
 package nl.guitar.player;
 
 import nl.guitar.StatusWebsocket;
+import nl.guitar.controlers.Controller;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
 import org.jfugue.theory.Note;
@@ -15,9 +16,14 @@ import java.util.stream.Collectors;
 public abstract class GuitarPlayer implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(GuitarPlayer.class);
     public static final int PREPARE_TIME = 40;
+    protected final Controller controller;
     private int notesBarsPlayed;
     private float tempo = 80;
     private boolean isStopped = false;
+
+    public GuitarPlayer(Controller controller) {
+        this.controller = controller;
+    }
 
     /** return the number of ms to wait for the note */
     abstract void prepareString(GuitarNote gn);
@@ -74,13 +80,17 @@ public abstract class GuitarPlayer implements AutoCloseable {
     public void playActions(List<GuitarAction> guitarActions) {
         isStopped = false;
         StatusWebsocket.sendToAll("start");
+        long noteStartTime = System.currentTimeMillis();
         for (GuitarAction action : guitarActions) {
             StatusWebsocket.sendToAll("next");
             playNotes(action.notesToPlay);
-            waitMilliseconds(action.timeTillNextNote - PREPARE_TIME);
             if (isStopped) {
                 break;
             }
+            final long actualNoteDuration = (System.currentTimeMillis() - noteStartTime);
+            logger.info("it took " + actualNoteDuration + "ms");
+            waitMilliseconds(action.timeTillNextNote - actualNoteDuration);
+            noteStartTime = System.currentTimeMillis();
         }
         StatusWebsocket.sendToAll("stop");
     }
@@ -88,12 +98,14 @@ public abstract class GuitarPlayer implements AutoCloseable {
     abstract public void resetFreds();
 
     protected void waitMilliseconds(long waitTimeMS) {
+        long noteStartTime = System.currentTimeMillis();
         try {
             logger.info("Next note in: " + waitTimeMS + "ms");
             TimeUnit.MILLISECONDS.sleep(waitTimeMS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        logger.info("sleep took " + (System.currentTimeMillis() - noteStartTime) + "ms");
     }
 
     public void setTempo(int tempo) {

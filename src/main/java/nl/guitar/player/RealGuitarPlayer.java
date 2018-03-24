@@ -1,12 +1,10 @@
 package nl.guitar.player;
 
+import nl.guitar.controlers.Controller;
 import nl.guitar.player.object.GuitarNote;
-import com.pi4j.io.i2c.I2CFactory;
-import i2c.servo.pwm.PCA9685;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 public class RealGuitarPlayer extends GuitarPlayer {
@@ -46,24 +44,8 @@ public class RealGuitarPlayer extends GuitarPlayer {
             {1.51f,1.51f,1.50f,1.45f,0,0,0}  // E
     };
 
-    private static PCA9685 servoBoardStrings;
-    private static PCA9685 servoBoardFreds;
-
-    static {
-        try {
-            servoBoardStrings = new PCA9685(0x40);
-            servoBoardStrings.setPWMFreq(100); // Set frequency Hz
-            TimeUnit.SECONDS.sleep(1);
-            servoBoardFreds = new PCA9685(0x41);
-            servoBoardFreds.setPWMFreq(100); // Set frequency Hz
-            TimeUnit.SECONDS.sleep(1);
-        } catch (I2CFactory.UnsupportedBusNumberException | InterruptedException | UnsatisfiedLinkError e) {
-            logger.error("Failed to load real guitar player", e);
-            throw new RuntimeException(e);
-        }
-    }
-
-    public RealGuitarPlayer() {
+    public RealGuitarPlayer(Controller controller) {
+        super(controller);
         logger.info("Starting real guitar player");
         try {
             close();
@@ -87,7 +69,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
             fredPressed[stringNumber] = fredNumber;
             if (fredNumber > 0) {
                 logger.info("Press fred " + fredNumber);
-                servoBoardFreds.setServoPulse(servoFredLocations[stringNumber][fredNumber - 1], servoFredPositions[stringNumber][fredNumber - 1]);
+                controller.setServoPulse(1, servoFredLocations[stringNumber][fredNumber - 1], servoFredPositions[stringNumber][fredNumber - 1]);
             }
         }
     }
@@ -102,7 +84,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
                 toPos = stringUp[gn.getStringNumber()];
                 isStringUp[gn.getStringNumber()] = true;
             }
-            servoBoardStrings.setServoPulse(servoLocations[gn.getStringNumber()], toPos);
+            controller.setServoPulse(0, servoLocations[gn.getStringNumber()], toPos);
         }
     }
 
@@ -117,7 +99,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     private void resetFred(int stringNumber) {
         for (int i = 0; i < servoFredLocations[0].length; i++) {
             if (servoFredLocations[stringNumber][i] > -1) {
-                servoBoardFreds.setServoPulse(servoFredLocations[stringNumber][i], servoFredCenterPositions[stringNumber][i/2]);
+                controller.setServoPulse(1, servoFredLocations[stringNumber][i], servoFredCenterPositions[stringNumber][i/2]);
                 logger.debug("fred servo "+ servoFredLocations[stringNumber][i] + " pos "  + servoFredCenterPositions[stringNumber][i/2]);
             }
         }
@@ -128,7 +110,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
         logger.info("Reset servo positions");
         for (int i = 0; i < 6; i++) {
             resetFred(i);
-            servoBoardStrings.setServoPulse(servoLocations[i], stringUp[i]);
+            controller.setServoPulse(0, servoLocations[i], stringUp[i]);
         }
     }
 }
