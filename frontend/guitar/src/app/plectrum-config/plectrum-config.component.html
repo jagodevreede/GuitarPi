@@ -1,0 +1,47 @@
+<table class="table table-hover">
+  <thead>
+  <tr>
+    <th scope="col">String</th>
+    <th></th>
+    <th></th>
+    <th scope="col">Adress H</th>
+    <th scope="col">Port H</th>
+    <th scope="col">Free</th>
+    <th scope="col">Soft</th>
+    <th scope="col">Hard</th>
+    <th scope="col">Stop</th>
+    <th scope="col">Adress P</th>
+    <th scope="col">Port P</th>
+    <th scope="col">Up</th>
+    <th scope="col">Down</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr class="table-active" *ngFor="let c of config">
+    <th>{{c.note}}</th>
+    <td class="heightSelector">
+      <select [(ngModel)]="c.height" class="custom-select">
+        <option *ngFor="let h of heights" [ngValue]="h">{{h}}</option>
+      </select>
+    </td>
+    <td class="heightSelector">
+      <select [(ngModel)]="c.position" class="custom-select">
+        <option *ngFor="let p of positions" [ngValue]="p">{{p}}</option>
+      </select>
+    </td>
+    <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.adressHeight"></td>
+    <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.portHeight"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.free"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.soft"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.hard"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.stop"></td>
+    <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.adressPlectrum"></td>
+    <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.portPlectrum"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.up"></td>
+    <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.down"></td>
+  </tr>
+  </tbody>
+</table>
+
+<button type="button" class="btn btn-primary" (click)="save()">Save</button>
+<button type="button" class="btn btn-secondary" (click)="test()">Save & Test</button>
