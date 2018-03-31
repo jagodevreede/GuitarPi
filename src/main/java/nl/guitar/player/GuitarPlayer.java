@@ -60,7 +60,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
         List<Integer> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).distinct().collect(Collectors.toList());
         if (notesToPlay.size() > distinctStrings.size()) {
             notesToPlay.forEach((n) -> logger.error(n.toString()));
-            throw new IllegalStateException("Want to play a sing multiple times on note: " + notesBarsPlayed);
+            throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed);
         }
 
         for (int i =0; i < 6; i++) {

@@ -5,7 +5,6 @@ import com.google.common.io.Resources;
 import nl.guitar.musicxml.MusicXmlParserListener;
 import nl.guitar.player.GuitarPlayer;
 import nu.xom.ParsingException;
-import nu.xom.ValidityException;
 import org.jfugue.integration.MusicXmlParser;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,13 +20,13 @@ public class PlayerService {
     private GuitarPlayer guitarPlayer;
     private String fileContents;
 
-    public PlayerService(GuitarPlayer guitarPlayer) {
+    PlayerService(GuitarPlayer guitarPlayer) {
         this.guitarPlayer = guitarPlayer;
     }
 
     public List<String> getAvailableMusic() {
         List<String> result = new ArrayList<>();
-        for (File file : new File("./").listFiles((f) -> f.getName().endsWith(".xml"))) {
+        for (File file : new File("./music/").listFiles((f) -> f.getName().endsWith(".xml"))) {
             result.add(file.getName().substring(0, file.getName().length() - 4));
         }
         Collections.sort(result);
@@ -40,7 +39,7 @@ public class PlayerService {
 
     public void load(String fileToPlay) {
         try {
-            URL url = new File(fileToPlay).toURI().toURL();
+            URL url = new File("music/" + fileToPlay).toURI().toURL();
             fileContents = Resources.toString(url, Charsets.UTF_8);
             fileContents = fileContents.replaceAll("http://www.musicxml.org/dtds/partwise.dtd", "musicxml/partwise.dtd");
         } catch (IOException e) {
