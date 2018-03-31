@@ -16,10 +16,12 @@ import java.util.stream.Collectors;
 public abstract class GuitarPlayer implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(GuitarPlayer.class);
     public static final int PREPARE_TIME = 40;
+    public static final int MINIMUM_MS_BETWEEN_NOTES = 80;
     protected final Controller controller;
     private int notesBarsPlayed;
     private float tempo = 80;
     private boolean isStopped = false;
+    private long startTime;
 
     public GuitarPlayer(Controller controller) {
         this.controller = controller;
@@ -50,9 +52,12 @@ public abstract class GuitarPlayer implements AutoCloseable {
             long timeout = (long) (60f / tempo * 4f * note.getDuration() * 1000);
             if (timeout < shortestNote) {
                 shortestNote = timeout;
+                if (shortestNote < MINIMUM_MS_BETWEEN_NOTES) {
+                    throw new IllegalStateException("Notes to fast minimum time between notes " + MINIMUM_MS_BETWEEN_NOTES + " but wanted " + shortestNote);
+                }
             }
         }
-        List<Integer> distinctStrings = notesToPlay.stream().map(gn -> gn.getStringNumber()).distinct().collect(Collectors.toList());
+        List<Integer> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).distinct().collect(Collectors.toList());
         if (notesToPlay.size() > distinctStrings.size()) {
             notesToPlay.forEach((n) -> logger.error(n.toString()));
             throw new IllegalStateException("Want to play a sing multiple times on note: " + notesBarsPlayed);
@@ -80,32 +85,36 @@ public abstract class GuitarPlayer implements AutoCloseable {
     public void playActions(List<GuitarAction> guitarActions) {
         isStopped = false;
         StatusWebsocket.sendToAll("start");
-        long noteStartTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
         for (GuitarAction action : guitarActions) {
+            waitUntilTimestamp(action.timeStamp);
             StatusWebsocket.sendToAll("next");
             playNotes(action.notesToPlay);
             if (isStopped) {
                 break;
             }
-            final long actualNoteDuration = (System.currentTimeMillis() - noteStartTime);
-            logger.info("it took " + actualNoteDuration + "ms");
-            waitMilliseconds(action.timeTillNextNote - actualNoteDuration);
-            noteStartTime = System.currentTimeMillis();
         }
         StatusWebsocket.sendToAll("stop");
     }
 
     abstract public void resetFreds();
 
+    protected void waitUntilTimestamp(long timeStamp) {
+        final long nextTimeStampInTime = startTime + timeStamp;
+        while (nextTimeStampInTime - System.currentTimeMillis() > 250) {
+            waitMilliseconds(100);
+        }
+        while (nextTimeStampInTime - System.currentTimeMillis() > 0) {
+            // No op
+        }
+    }
+
     protected void waitMilliseconds(long waitTimeMS) {
-        long noteStartTime = System.currentTimeMillis();
         try {
-            logger.info("Next note in: " + waitTimeMS + "ms");
             TimeUnit.MILLISECONDS.sleep(waitTimeMS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        logger.info("sleep took " + (System.currentTimeMillis() - noteStartTime) + "ms");
     }
 
     public void setTempo(int tempo) {

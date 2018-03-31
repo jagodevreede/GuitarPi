@@ -6,4 +6,5 @@ public class GuitarAction {
 
     public List<GuitarNote> notesToPlay;
     public long timeTillNextNote;
+    public long timeStamp;
 }
