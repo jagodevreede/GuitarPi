@@ -2,6 +2,7 @@ package nl.guitar.player;
 
 import nl.guitar.StatusWebsocket;
 import nl.guitar.controlers.Controller;
+import nl.guitar.data.ConfigRepository;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
 import org.jfugue.theory.Note;

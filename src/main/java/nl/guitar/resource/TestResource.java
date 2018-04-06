@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -29,6 +30,61 @@ public class TestResource {
 		this.repository = repository;
 		this.controller = controller;
 	}
+
+	@GET
+    @Path("{repeat}")
+    public void testAll(@PathParam("repeat") int repeat) throws IOException, InterruptedException {
+	    final long sleepTime = 100 - 12; //min 70
+        List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
+        for (int i = 0; i < plectrumConfigs.size(); i++) {
+            PlectrumConfig config = plectrumConfigs.get(i);
+            float heightValue = config.hard;
+            controller.setServoPulse(config.adressHeight, config.portHeight, heightValue);
+        }
+        for (int x = 0; x < repeat; x++) {
+            final long startTime = System.currentTimeMillis();
+            for (int i = 0; i < plectrumConfigs.size(); i++) {
+                PlectrumConfig config = plectrumConfigs.get(i);
+                float positionValue = config.up;
+                if (x % 2 == 0) {
+                    positionValue = config.down;
+                }
+                controller.setServoPulse(config.adressPlectrum, config.portPlectrum, positionValue);
+            }
+            System.out.println("bs    " + (System.currentTimeMillis() - startTime));
+            Thread.sleep(sleepTime);
+            System.out.println("total " + (System.currentTimeMillis() - startTime));
+        }
+    }
+
+    @GET
+    @Path("/over/{repeat}")
+    public String testOnlyToDownAll(@PathParam("repeat") int repeat) throws IOException, InterruptedException {
+        //final long sleepTime = 100 - 12; //min 70
+        List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
+        for (int x = 0; x < repeat; x++) {
+            final long startTime = System.currentTimeMillis();
+            for (int i = 0; i < plectrumConfigs.size(); i++) {
+                PlectrumConfig config = plectrumConfigs.get(i);
+                controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.down);
+            }
+            System.out.println("hit   " + (System.currentTimeMillis() - startTime));
+            Thread.sleep(40);
+            for (int i = 0; i < plectrumConfigs.size(); i++) {
+                PlectrumConfig config = plectrumConfigs.get(i);
+                controller.setServoPulse(config.adressHeight, config.portHeight, config.free);
+                Thread.sleep(30);
+                controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
+                Thread.sleep(30);
+                controller.setServoPulse(config.adressHeight, config.portHeight, config.hard);
+                Thread.sleep(30);
+            }
+            //System.out.println("over  " + (System.currentTimeMillis() - startTime));
+            //Thread.sleep(40);
+            System.out.println("total " + (System.currentTimeMillis() - startTime));
+        }
+        return "OK";
+    }
 
 	@POST
 	public void savePlectrumConfig(List<TestState> testStates) throws IOException, InterruptedException {

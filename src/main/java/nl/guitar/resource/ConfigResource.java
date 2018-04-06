@@ -1,6 +1,7 @@
 package nl.guitar.resource;
 
 import nl.guitar.data.ConfigRepository;
+import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,18 @@ public class ConfigResource {
 	@Path("plectrum")
 	public void savePlectrumConfig(List<PlectrumConfig> config) throws IOException {
 		repository.savePlectrumConfig(config);
+	}
+
+	@GET
+	@Path("fred")
+	public List<FredConfig> loadFredConfig() throws IOException {
+		return repository.loadFredConfig();
+	}
+
+	@POST
+	@Path("fred")
+	public void saveFredConfig(List<FredConfig> config) throws IOException {
+		repository.saveFredConfig(config);
 	}
 
 }

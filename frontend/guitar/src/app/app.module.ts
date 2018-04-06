@@ -8,10 +8,12 @@ import { AppComponent } from './app.component';
 import { PlectrumConfigComponent } from './plectrum-config/plectrum-config.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { WelcomeComponent } from './welcome/welcome.component';
+import { FredConfigComponent } from './fred-config/fred-config.component';
 
 const appRoutes: Routes = [
 { path: 'welcome',      component: WelcomeComponent },
 { path: 'config/plectrum',      component: PlectrumConfigComponent },
+{ path: 'config/fred',      component: FredConfigComponent },
 { path: '',
 redirectTo: '/welcome',
 pathMatch: 'full'
@@ -24,7 +26,8 @@ pathMatch: 'full'
     AppComponent,
     PlectrumConfigComponent,
     PageNotFoundComponent,
-    WelcomeComponent
+    WelcomeComponent,
+    FredConfigComponent
   ],
   imports: [
     RouterModule.forRoot(

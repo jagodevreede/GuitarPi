@@ -1,19 +1,22 @@
 package nl.guitar.player;
 
 import nl.guitar.controlers.Controller;
+import nl.guitar.data.ConfigRepository;
+import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class RealGuitarPlayer extends GuitarPlayer {
 
     private static final Logger logger = LoggerFactory.getLogger(RealGuitarPlayer.class);
 
-    private static final short[] servoLocations = new short[] { 4, 8, 5, 9, 6, 10};
-    private static final float[] stringUp = new float[] { 1.4f, 1.3f, 1.3f, 1.4f, 1.3f, 1.36f};
-    private static final float[] stringDown = new float[] { 1.6f, 1.1f, 1.55f, 1.25f, 1.57f, 1.1f};
+    protected final ConfigRepository configRepository = new ConfigRepository();
+    private final List<PlectrumConfig> plectrumConfig;
+
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
 
@@ -55,6 +58,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
             throw new RuntimeException(e);
         }
         logger.info("Real guitar player ready!");
+        plectrumConfig = configRepository.loadPlectrumConfig();
     }
 
     @Override
@@ -77,14 +81,15 @@ public class RealGuitarPlayer extends GuitarPlayer {
     void playString(GuitarNote gn) {
         if (gn.isHit()) {
             float toPos;
+            PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
             if (isStringUp[gn.getStringNumber()]) {
-                toPos = stringDown[gn.getStringNumber()];
+                toPos = stringConfig.down;
                 isStringUp[gn.getStringNumber()] = false;
             } else {
-                toPos = stringUp[gn.getStringNumber()];
+                toPos = stringConfig.up;
                 isStringUp[gn.getStringNumber()] = true;
             }
-            controller.setServoPulse(0, servoLocations[gn.getStringNumber()], toPos);
+            controller.setServoPulse(stringConfig.portPlectrum, stringConfig.adressPlectrum, toPos);
         }
     }
 
@@ -110,7 +115,8 @@ public class RealGuitarPlayer extends GuitarPlayer {
         logger.info("Reset servo positions");
         for (int i = 0; i < 6; i++) {
             resetFred(i);
-            controller.setServoPulse(0, servoLocations[i], stringUp[i]);
+            PlectrumConfig config = plectrumConfig.get(i);
+            controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
         }
     }
 }
