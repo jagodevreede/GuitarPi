@@ -51,25 +51,27 @@ public class ConfigRepository {
         }
     }
 
-    public List<FredConfig> loadFredConfig() {
+    public List<List<FredConfig>> loadFredConfig() {
         try {
             File configFile = new File(FRED_CONF);
             if (!configFile.exists()) {
-                List<FredConfig> config = new ArrayList<>();
+                List<List<FredConfig>> config = new ArrayList<>();
                 for (int startNote : stringStartNote) {
+                    List<FredConfig> stringConfig = new ArrayList<>();
+                    config.add(stringConfig);
                     for (int i = 0; i < HOW_MANY_FRED_ON_STRING; i++) {
-                        addNoteToFredConfig(config, startNote + i);
+                        addNoteToFredConfig(stringConfig, startNote + i);
                     }
                 }
                 saveFredConfig(config);
             }
-            return om.readValue(configFile, new TypeReference<List<FredConfig>>() {});
+            return om.readValue(configFile, new TypeReference<List<List<FredConfig>>>() {});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void saveFredConfig(List<FredConfig> config) {
+    public void saveFredConfig(List<List<FredConfig>> config) {
         try {
             File configFile = new File(FRED_CONF);
             om.writeValue(configFile, config);
@@ -82,6 +84,8 @@ public class ConfigRepository {
         FredConfig fredConfig = new FredConfig();
         fredConfig.note = note;
         fredConfig.push = 1.5f;
+        fredConfig.adress = 1;
+        fredConfig.port = -1;
         if (note % 2 == 0) {
             fredConfig.free = 1.5f;
         }

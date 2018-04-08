@@ -1,0 +1,13 @@
+.fred-table {
+  width: 4500px;
+}
+
+.fred-table th, .fred-table td {
+  padding: 0.25em;
+  width: 75px
+}
+
+group {
+  border-color: black;
+  border-width: 1px;
+}

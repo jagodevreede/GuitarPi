@@ -28,6 +28,16 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     }
 
     @Override
+    public void onBarLineParsed(long id) {
+        super.onBarLineParsed(id);
+    }
+
+    @Override
+    public void onMarkerParsed(String marker) {
+        super.onMarkerParsed(marker);
+    }
+
+    @Override
     public void afterParsingFinished() {
         guitarActions.add(guitarPlayer.calculateNotes(notes));
         notes.clear();

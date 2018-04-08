@@ -1,3 +1,30 @@
-<p>
-  fred-config works!
-</p>
+<table class="table table-hover fred-table">
+  <tbody>
+    <string-group *ngFor="let c of config">
+      <tr>
+        <group *ngFor="let c of config[0]">
+          <th>Adress</th>
+          <th>Port</th>
+          <th>Free</th>
+        </group>
+      </tr>
+      <tr *ngFor="let i of stringNumbers">
+        <group *ngFor="let c of config[$i]">
+          <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.adress"></td>
+          <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.port"></td>
+          <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.free"></td>
+        </group>
+      </tr>
+      <tr>
+        <group *ngFor="let c of config[$i]">
+          <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.adress"></td>
+          <td><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="c.port"></td>
+          <td><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="c.free"></td>
+        </group>
+      </tr>
+    </string-group>
+  </tbody>
+</table>
+
+<button type="button" class="btn btn-primary" (click)="save()">Save</button>
+<button type="button" class="btn btn-secondary" (click)="test()">Save & Test</button>

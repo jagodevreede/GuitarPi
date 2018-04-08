@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class PlectrumConfigComponent implements OnInit {
   //private baseUrl = 'http://localhost:8080/api/';
-  private baseUrl = 'http://192.168.1.20:8080/api/';
+  private baseUrl = 'http://192.168.0.101:8080/api/';
   public config: any;
   public heights = [ "Free", "Soft", "Hard", "Stop" ]
   public positions = [ "Up", "Down" ]

@@ -41,13 +41,13 @@ public class ConfigResource {
 
 	@GET
 	@Path("fred")
-	public List<FredConfig> loadFredConfig() throws IOException {
+	public List<List<FredConfig>> loadFredConfig() throws IOException {
 		return repository.loadFredConfig();
 	}
 
 	@POST
 	@Path("fred")
-	public void saveFredConfig(List<FredConfig> config) throws IOException {
+	public void saveFredConfig(List<List<FredConfig>> config) throws IOException {
 		repository.saveFredConfig(config);
 	}
 

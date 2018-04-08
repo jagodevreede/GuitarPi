@@ -9,6 +9,7 @@ import { PlectrumConfigComponent } from './plectrum-config/plectrum-config.compo
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { FredConfigComponent } from './fred-config/fred-config.component';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const appRoutes: Routes = [
 { path: 'welcome',      component: WelcomeComponent },
@@ -39,6 +40,9 @@ pathMatch: 'full'
     FormsModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [
+   NO_ERRORS_SCHEMA
+ ]
 })
 export class AppModule { }
