@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.EnumSet;
 
 import io.dropwizard.websockets.WebsocketBundle;
+import nl.guitar.player.RealGuitarPlayer;
 import nl.guitar.resource.ConfigResource;
 import nl.guitar.resource.MusicResource;
 import nl.guitar.resource.TestResource;
@@ -49,9 +50,7 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 		Constructor<?> controllerConstructor = controllerClazz.getConstructor();
 		Controller controller = (Controller) controllerConstructor.newInstance();
 
-		Class<?> clazz = Class.forName(GuitarPlayer.class.getPackage().getName() + "." + config.getImplementation() + "GuitarPlayer");
-		Constructor<?> constructor = clazz.getConstructor(Controller.class);
-		GuitarPlayer guitarPlayer = (GuitarPlayer) constructor.newInstance(controller);
+		GuitarPlayer guitarPlayer = new RealGuitarPlayer(controller);
 
 		guitarPlayer.resetFreds();
 

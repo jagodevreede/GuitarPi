@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class RealController implements Controller  {
+public class RealController extends RealTimeController  {
     private static final Logger logger = LoggerFactory.getLogger(RealController.class);
     private static final int updateFrequencyHz = 75; // max 200
 

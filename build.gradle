@@ -41,6 +41,7 @@ dependencies {
             'xom:xom:1.2.5',
             group: 'com.beust', name: 'jcommander', version: '1.58'
     )
+    testCompile group: 'org.testng', name: 'testng', version: '6.13.1'
 }
 
 // Configure the oneJar task
@@ -59,6 +60,11 @@ task wrapper(type: Wrapper) {
 
 artifacts {
     oneJar
+}
+
+test {
+    // enable TestNG support (default is JUnit)
+    useTestNG()
 }
 
 allprojects {

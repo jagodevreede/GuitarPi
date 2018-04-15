@@ -25,13 +25,11 @@ public abstract class GuitarPlayer implements AutoCloseable {
     private int notesBarsPlayed;
     private float tempo = 80;
     private boolean isStopped = false;
-    private long startTime;
 
     public GuitarPlayer(Controller controller) {
         this.controller = controller;
     }
 
-    /** return the number of ms to wait for the note */
     abstract void prepareString(GuitarNote gn);
 
     abstract void playString(GuitarNote gn);
@@ -104,7 +102,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
     private void playNotes(List<GuitarNote> notesToPlay){
         notesBarsPlayed++;
         notesToPlay.forEach(this::prepareString);
-        waitMilliseconds(PREPARE_TIME);
+        controller.waitMilliseconds(PREPARE_TIME);
 
         notesToPlay.forEach(this::playString);
     }
@@ -112,9 +110,9 @@ public abstract class GuitarPlayer implements AutoCloseable {
     public void playActions(List<GuitarAction> guitarActions) {
         isStopped = false;
         StatusWebsocket.sendToAll("start");
-        startTime = System.currentTimeMillis();
+        controller.start();
         for (GuitarAction action : guitarActions) {
-            waitUntilTimestamp(action.timeStamp);
+            controller.waitUntilTimestamp(action.timeStamp);
             StatusWebsocket.sendToAll("next");
             playNotes(action.notesToPlay);
             if (isStopped) {
@@ -125,24 +123,6 @@ public abstract class GuitarPlayer implements AutoCloseable {
     }
 
     abstract public void resetFreds();
-
-    protected void waitUntilTimestamp(long timeStamp) {
-        final long nextTimeStampInTime = startTime + timeStamp;
-        while (nextTimeStampInTime - System.currentTimeMillis() > 250) {
-            waitMilliseconds(100);
-        }
-        while (nextTimeStampInTime - System.currentTimeMillis() > 0) {
-            // No op
-        }
-    }
-
-    protected void waitMilliseconds(long waitTimeMS) {
-        try {
-            TimeUnit.MILLISECONDS.sleep(waitTimeMS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void setTempo(int tempo) {
         logger.info("Tempo changed to = " + tempo);

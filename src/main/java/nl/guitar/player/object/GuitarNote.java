@@ -76,7 +76,8 @@ public class GuitarNote {
     @Override
     public String toString() {
         return "GuitarNote{" +
-                "stringNumber=" + stringNumber +
+                "noteValue=" + noteValue +
+                ", stringNumber=" + stringNumber +
                 ", fred=" + fred +
                 ", hit=" + hit +
                 ", name='" + name + '\'' +

@@ -1,9 +1,6 @@
-#implementation: Console
-implementation: RealTimeConsole
-#implementation: Real
-
-#controller: StubController
-controller: RealController
+#controller: NoOpController
+controller: ConsoleController
+#controller: RealController
 
 server:
   applicationConnectors:
