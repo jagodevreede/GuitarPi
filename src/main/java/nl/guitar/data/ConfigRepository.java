@@ -84,7 +84,7 @@ public class ConfigRepository {
         FredConfig fredConfig = new FredConfig();
         fredConfig.note = note;
         fredConfig.push = 1.5f;
-        fredConfig.adress = 1;
+        fredConfig.address = 1;
         fredConfig.port = -1;
         if (note % 2 == 0) {
             fredConfig.free = 1.5f;

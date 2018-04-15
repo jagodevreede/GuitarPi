@@ -11,3 +11,52 @@ group {
   border-color: black;
   border-width: 1px;
 }
+
+.fred-row {
+
+}
+
+input {
+  border: 1px solid #e7e7e7;
+}
+
+.fred-row .fred-config {
+    border: 1px solid #747474;
+    width: 225px;
+    display: table-cell;
+}
+
+.fred-row .fred-config .config-adress {
+  width: 225px;
+}
+
+.fred-row .fred-config .config-adress .header {
+  float: left;
+  width: 75px;
+      font-weight: 900;
+}
+
+.fred-row .fred-config .config-adress .header-input {
+  float: left;
+  width: 75px;
+}
+
+
+.fred-row .fred-config .config-note {
+  width: 112px;
+  display: table-cell;
+}
+
+.fred-row .fred-config .config-note .note {
+  font-size: 11px;
+  vertical-align: top;
+}
+
+.fred-row .fred-config .config-note .header {
+    font-weight: 900;
+    display: inline-block;
+}
+
+.fred-row .fred-config .config-note .note-input {
+
+}

@@ -9,10 +9,11 @@ public class GuitarNote {
     private int fred = 0;
     private boolean hit = true;
     private String name;
+    private final int noteValue;
 
     public GuitarNote(Note note) {
         name = note.toString();
-        int noteValue = note.getValue();
+        noteValue = note.getValue();
        /* if (noteValue > 56) {
             noteValue -= 12;
             System.out.println("Note " + note + " is to high (" + note.getValue() + ") using a octave lower");
@@ -31,6 +32,11 @@ public class GuitarNote {
         this.stringNumber = stringNumber;
         this.fred = fred;
         this.hit = hit;
+        this.noteValue = -1;
+    }
+
+    public int getNoteValue() {
+        return noteValue;
     }
 
     public int getStringNumber() {

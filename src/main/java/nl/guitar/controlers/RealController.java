@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RealController implements Controller  {
     private static final Logger logger = LoggerFactory.getLogger(RealController.class);
-    private static final int updateFrequencyHz = 100; // max 200
+    private static final int updateFrequencyHz = 75; // max 200
 
     private static PCA9685[] servoBoards;
 

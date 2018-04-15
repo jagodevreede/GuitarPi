@@ -19,8 +19,13 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     private long currentTimestamp = 0;
 
     public MusicXmlParserListener(GuitarPlayer guitarPlayer) {
-        this.guitarPlayer = guitarPlayer;
-        System.out.println("Pre calculation of notes started");
+        try {
+            this.guitarPlayer = guitarPlayer;
+            System.out.println("Pre calculation of notes started");
+        } catch (Exception e) {
+            logger.error("Failed to parse music xml", e);
+            throw e;
+        }
     }
 
     public void onTempoChanged(int tempoBPM) {
@@ -39,26 +44,37 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
 
     @Override
     public void afterParsingFinished() {
-        guitarActions.add(guitarPlayer.calculateNotes(notes));
-        notes.clear();
-        System.gc();
-        logger.info("Calculation done starting to play");
-        guitarPlayer.playActions(guitarActions);
-        guitarActions.clear();
-        guitarPlayer.resetFreds();
-        logger.info("Done playing");
+        try {
+            guitarActions.add(guitarPlayer.calculateNotes(notes));
+            guitarPlayer.printStats(guitarActions);
+            notes.clear();
+            System.gc();
+            logger.info("Calculation done starting to play");
+            guitarPlayer.playActions(guitarActions);
+            guitarActions.clear();
+            guitarPlayer.resetFreds();
+            logger.info("Done playing");
+        } catch (Exception e) {
+            logger.error("Failed to parse music xml", e);
+            throw e;
+        }
     }
 
     @Override
     public void onNoteParsed(Note note) {
-        if (!note.isHarmonicNote() && !notes.isEmpty()) {
-            final GuitarAction action = guitarPlayer.calculateNotes(notes);
-            action.timeStamp = currentTimestamp;
-            currentTimestamp += action.timeTillNextNote;
-            guitarActions.add(action);
-            notes.clear();
+        try {
+            if (!note.isHarmonicNote() && !notes.isEmpty()) {
+                final GuitarAction action = guitarPlayer.calculateNotes(notes);
+                action.timeStamp = currentTimestamp;
+                currentTimestamp += action.timeTillNextNote;
+                guitarActions.add(action);
+                notes.clear();
+            }
+            notes.add(note);
+        } catch (Exception e) {
+            logger.error("Failed to parse music xml", e);
+            throw e;
         }
-        notes.add(note);
     }
 
 }
