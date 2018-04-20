@@ -9,17 +9,19 @@ import java.util.concurrent.TimeUnit;
 
 public class RealController extends RealTimeController  {
     private static final Logger logger = LoggerFactory.getLogger(RealController.class);
-    private static final int updateFrequencyHz = 75; // max 200
+    private static final int updateFrequencyHz = 150; // max 200
 
     private static PCA9685[] servoBoards;
 
     static {
         try {
             logger.info("Starting REAL controller (works only on the PI)");
-            servoBoards = new PCA9685[]{ new PCA9685(0x40), new PCA9685(0x41) };
+            servoBoards = new PCA9685[]{ new PCA9685(0x40), new PCA9685(0x41), new PCA9685(0x42) };
             servoBoards[0].setPWMFreq(updateFrequencyHz);
             TimeUnit.SECONDS.sleep(1);
             servoBoards[1].setPWMFreq(updateFrequencyHz);
+            TimeUnit.SECONDS.sleep(1);
+            servoBoards[2].setPWMFreq(updateFrequencyHz);
             TimeUnit.SECONDS.sleep(1);
         } catch (I2CFactory.UnsupportedBusNumberException | InterruptedException | UnsatisfiedLinkError e) {
             logger.error("Failed to load real guitar player", e);
@@ -28,6 +30,8 @@ public class RealController extends RealTimeController  {
     }
 
     public void setServoPulse(int boardNumber, short port, float v) {
-        servoBoards[boardNumber].setServoPulse(port, v);
+        if (port > -1 && boardNumber > -1) {
+            servoBoards[boardNumber].setServoPulse(port, v);
+        }
     }
 }

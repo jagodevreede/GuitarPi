@@ -36,7 +36,9 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 		websocketBundle = new WebsocketBundle(StatusWebsocket.class);
 		bootstrap.addBundle(websocketBundle);
 
-        bootstrap.addBundle(new AssetsBundle("/webapp", "/", "index.html"));
+        bootstrap.addBundle(new AssetsBundle("/webapp", "/play", "index.html", "play"));
+        bootstrap.addBundle(new AssetsBundle("/ui/assets", "/assets", "index.html", "assets"));
+        bootstrap.addBundle(new AssetsBundle("/ui", "/ui", "index.html", "ui"));
 	}
 
 	@Override

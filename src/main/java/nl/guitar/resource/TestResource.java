@@ -2,6 +2,7 @@ package nl.guitar.resource;
 
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
+import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.domain.TestState;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +32,20 @@ public class TestResource {
 		this.repository = repository;
 		this.controller = controller;
 	}
+
+	@GET
+    @Path("fred")// ?string' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos
+    public void testFred(@QueryParam("string") int stringNumber, @QueryParam("fred") int fredNumber, @QueryParam("pos") String pos) {
+        List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
+        FredConfig config = fredConfigs.get(stringNumber).get(fredNumber);
+        final float pushValue;
+        if ("push".equalsIgnoreCase(pos)) {
+            pushValue = config.push;
+        } else {
+            pushValue = config.free;
+        }
+        controller.setServoPulse(config.address, config.port, pushValue);
+    }
 
 	@GET
     @Path("{repeat}")

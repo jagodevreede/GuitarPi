@@ -1,5 +1,6 @@
 import { Component, OnInit, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-fred-config',
@@ -7,8 +8,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./fred-config.component.css']
 })
 export class FredConfigComponent implements OnInit {
-  private baseUrl = 'http://localhost:8080/api/';
-  //private baseUrl = 'http://192.168.1.20:8080/api/';
+  private baseUrl = environment.baseUrl;
   public stringNumbers: Number[] = [];
   public fredNumbers: Number[] = [];
   public config: any[][];
@@ -31,12 +31,12 @@ export class FredConfigComponent implements OnInit {
   }
 
   save() {
-    this.http.post(this.baseUrl + 'config/fred', this.config).subscribe(res => console.log("Saved"));
+    this.http.post(this.baseUrl + 'config/fred', this.config).subscribe(res => console.log("Saved Fred"));
   }
 
-  test() {
+  test(stringNumber: Number, fredNumber: Number, pos) {
     this.http.post(this.baseUrl + 'config/fred', this.config).subscribe(res => {
-      this.http.post(this.baseUrl + 'test_fred', this.config).subscribe(res => console.log("Tested"));
+      this.http.get(this.baseUrl + 'test/fred?string' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos).subscribe(res => console.log("Tested Fred"));
     });
   }
 

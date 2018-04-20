@@ -8,16 +8,19 @@
         <div class="header-input"><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="config[sn][fn].address"></div>
         <div class="header-input"><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="config[sn][fn].port"></div>
         <div class="header-input"><input type="number" step="0.01" class="form-control-plaintext" [(ngModel)]="config[sn][fn].free"></div>
+        <div class="note-test"><button type="button" class="btn btn-secondary disabled" (click)="test(sn, fn, 'free')">Free</button></div>
       </div>
       <span class="config-note">
         <span class="note">{{config[sn][fn].note}}</span>
         <div class="header">Push</div>
         <div class="note-input"><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="config[sn][fn].push"></div>
+        <div class="note-test"><button type="button" class="btn btn-secondary disabled" (click)="test(sn, fn, 'push')">Test</button></div>
       </span>
       <span class="config-note">
         <span class="note">{{config[sn][fn+1].note}}</span>
         <div class="header">Push</div>
         <div class="note-input"><input type="number" step="1" class="form-control-plaintext" [(ngModel)]="config[sn][fn+1].push" ></div>
+        <div class="note-test"><button type="button" class="btn btn-secondary disabled" (click)="test(sn, fn+1, 'push')">Test</button></div>
       </span>
     </div>
   </ng-container>
