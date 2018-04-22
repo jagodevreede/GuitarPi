@@ -48,6 +48,14 @@ public class ConfigResource {
 	@POST
 	@Path("fred")
 	public void saveFredConfig(List<List<FredConfig>> config) throws IOException {
+		for (List<FredConfig> row : config) {
+			for (int i =1; i < row.size(); i++) {
+				if (i % 2 != 0) {
+					row.get(i).address = row.get(i-1).address;
+					row.get(i).port = row.get(i-1).port;
+				}
+			}
+		}
 		repository.saveFredConfig(config);
 	}
 

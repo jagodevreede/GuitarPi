@@ -44,6 +44,7 @@ public class TestResource {
         } else {
             pushValue = config.free;
         }
+        logger.debug("Testing fred {} on string {} to value {}", fredNumber, stringNumber, pushValue);
         controller.setServoPulse(config.address, config.port, pushValue);
     }
 

@@ -9,4 +9,14 @@ public class FredConfig {
     public short port;
     public float free;
     public float push;
+
+    @Override
+    public String toString() {
+        return "FredConfig{" +
+                "address=" + address +
+                ", port=" + port +
+                ", free=" + free +
+                ", push=" + push +
+                '}';
+    }
 }

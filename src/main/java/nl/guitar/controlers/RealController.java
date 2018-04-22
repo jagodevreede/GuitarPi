@@ -32,6 +32,9 @@ public class RealController extends RealTimeController  {
     public void setServoPulse(int boardNumber, short port, float v) {
         if (port > -1 && boardNumber > -1) {
             servoBoards[boardNumber].setServoPulse(port, v);
+            logger.debug("board {} with port {} to {}", boardNumber, port, v);
+        } else {
+            logger.warn("Tried to control board {} with {} to value {}", boardNumber, port, v);
         }
     }
 }

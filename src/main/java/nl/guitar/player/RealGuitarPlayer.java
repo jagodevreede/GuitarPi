@@ -2,6 +2,7 @@ package nl.guitar.player;
 
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
+import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
@@ -14,43 +15,17 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     private static final Logger logger = LoggerFactory.getLogger(RealGuitarPlayer.class);
 
-    private final ConfigRepository configRepository = new ConfigRepository();
     private final List<PlectrumConfig> plectrumConfig;
+    private final List<List<FredConfig>> fredConfig;
 
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
 
-    private static final short[][] servoFredLocations = new short[][] {
-            {4,4,3,3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, // E BAS
-            {5,5,2,2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, // B
-            {6,6,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, // G
-            {13,13,9,9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, // D
-            {14,14,10,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, // B
-            {15,15,11,11,8,8,7,7,-1,-1,-1,-1,-1,-1,-1,-1}  // E
-    };
-
-    private static final float[][] servoFredPositions= new float[][] {
-            {1.10f,1.80f,1.10f,1.90f,0,0,0,0,0,0,0,0,0,0,0,0}, // E BAS
-            {1.20f,1.85f,1.10f,2.00f,0,0,0,0,0,0,0,0,0,0,0,0}, // B
-            {1.20f,1.85f,1.20f,1.80f,0,0,0,0,0,0,0,0,0,0,0,0}, // G
-            {1.70f,1.00f,1.80f,1.20f,0,0,0,0,0,0,0,0,0,0,0,0}, // D
-            {1.80f,1.20f,1.70f,1.20f,0,0,0,0,0,0,0,0,0,0,0,0}, // B
-            {1.85f,1.15f,1.9f,1.25f,1.90f,1.20f,1.65f,1.2f,0,0,0,0,0,0,0,0}  // E
-    };
-
-    private static final float[][] servoFredCenterPositions= new float[][] {
-            {1.45f,1.45f,0,0,0,0,0,0,0,0,0}, // E BAS
-            {1.51f,1.51f,0,0,0,0,0,0,0,0,0}, // B
-            {1.51f,1.55f,0,0,0,0,0,0,0,0,0}, // G
-            {1.45f,1.51f,0,0,0,0,0,0,0,0,0}, // D
-            {1.45f,1.40f,0,0,0,0,0,0,0,0,0}, // B
-            {1.51f,1.51f,1.50f,1.45f,0,0,0,0,0,0,0}  // E
-    };
-
-    public RealGuitarPlayer(Controller controller) {
-        super(controller);
+    public RealGuitarPlayer(Controller controller, ConfigRepository configRepository) {
+        super(controller, configRepository);
         logger.info("Starting real guitar player");
         plectrumConfig = configRepository.loadPlectrumConfig();
+        fredConfig = configRepository.loadFredConfig();
         try {
             close();
             TimeUnit.SECONDS.sleep(1);
@@ -77,7 +52,8 @@ public class RealGuitarPlayer extends GuitarPlayer {
             fredPressed[stringNumber] = fredNumber;
             if (fredNumber > 0) {
                 logger.debug("Press fred " + fredNumber);
-                controller.setServoPulse(1, servoFredLocations[stringNumber][fredNumber - 1], servoFredPositions[stringNumber][fredNumber - 1]);
+                FredConfig fc = fredConfig.get(stringNumber).get(fredNumber - 1);
+                controller.setServoPulse(fc.address, fc.port, fc.push);
             }
         }
     }
@@ -109,10 +85,11 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     private void resetFred(int stringNumber) {
-        for (int i = 0; i < servoFredLocations[0].length; i++) {
-            if (servoFredLocations[stringNumber][i] > -1) {
-                controller.setServoPulse(1, servoFredLocations[stringNumber][i], servoFredCenterPositions[stringNumber][i/2]);
-                logger.debug("fred servo "+ servoFredLocations[stringNumber][i] + " pos "  + servoFredCenterPositions[stringNumber][i/2]);
+        for (int i = 0; i < fredConfig.get(stringNumber).size(); i += 2) {
+            FredConfig fc = fredConfig.get(stringNumber).get(i);
+            if (fc.port > -1) {
+                controller.setServoPulse(fc.address, fc.port, fc.free);
+                logger.debug("reset fred servo {}", fc);
             }
         }
     }
@@ -124,6 +101,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
             resetFred(i);
             PlectrumConfig config = plectrumConfig.get(i);
             controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
+            controller.setServoPulse(config.adressHeight, config.portHeight, config.soft);
         }
     }
 }

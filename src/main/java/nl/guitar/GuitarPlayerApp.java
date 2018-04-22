@@ -52,7 +52,7 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 		Constructor<?> controllerConstructor = controllerClazz.getConstructor();
 		Controller controller = (Controller) controllerConstructor.newInstance();
 
-		GuitarPlayer guitarPlayer = new RealGuitarPlayer(controller);
+		GuitarPlayer guitarPlayer = new RealGuitarPlayer(controller, new ConfigRepository());
 
 		guitarPlayer.resetFreds();
 

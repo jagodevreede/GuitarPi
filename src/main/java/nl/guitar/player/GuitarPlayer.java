@@ -22,12 +22,14 @@ public abstract class GuitarPlayer implements AutoCloseable {
     public static final int MINIMUM_MS_BETWEEN_NOTES = 40;
     private static final int MAX_FRED_NUMBER = 16; // was 8
     protected final Controller controller;
+    protected final ConfigRepository configRepository;
     private int notesBarsPlayed;
     private float tempo = 80;
     private boolean isStopped = false;
 
-    public GuitarPlayer(Controller controller) {
+    public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
+        this.configRepository = configRepository;
     }
 
     abstract void prepareString(GuitarNote gn);
