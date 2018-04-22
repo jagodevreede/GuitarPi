@@ -36,7 +36,7 @@ export class FredConfigComponent implements OnInit {
 
   test(stringNumber: Number, fredNumber: Number, pos) {
     this.http.post(this.baseUrl + 'config/fred', this.config).subscribe(res => {
-      this.http.get(this.baseUrl + 'test/fred?string' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos).subscribe(res => console.log("Tested Fred"));
+      this.http.get(this.baseUrl + 'test/fred?string=' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos).subscribe(res => console.log("Tested Fred"));
     });
   }
 
