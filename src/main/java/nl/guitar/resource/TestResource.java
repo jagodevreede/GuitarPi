@@ -33,6 +33,21 @@ public class TestResource {
 		this.controller = controller;
 	}
 
+    @GET
+    @Path("fred/reset_all")
+    public void testFred() {
+        List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
+        for (List<FredConfig> row: fredConfigs) {
+            for (int i =0; i < row.size(); i+=2) {
+                FredConfig config = row.get(i);
+                if (config.port > -1) {
+                    logger.debug("Reset fred config {} to free", config);
+                    controller.setServoPulse(config.address, config.port, config.free);
+                }
+            }
+        }
+    }
+
 	@GET
     @Path("fred")// ?string' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos
     public void testFred(@QueryParam("string") int stringNumber, @QueryParam("fred") int fredNumber, @QueryParam("pos") String pos) {

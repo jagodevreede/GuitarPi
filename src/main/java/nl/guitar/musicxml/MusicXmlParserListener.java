@@ -2,6 +2,7 @@ package nl.guitar.musicxml;
 
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.GuitarPlayer;
+import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.parser.ParserListenerAdapter;
 import org.jfugue.theory.Note;
 import org.slf4j.Logger;
@@ -17,9 +18,11 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     private List<Note> notes = new ArrayList<>();
     private List<GuitarAction> guitarActions = new ArrayList<>();
     private long currentTimestamp = 0;
+    private final GuitarTuning guitarTuning;
 
-    public MusicXmlParserListener(GuitarPlayer guitarPlayer) {
+    public MusicXmlParserListener(GuitarPlayer guitarPlayer, GuitarTuning guitarTuning) {
         try {
+            this.guitarTuning = guitarTuning;
             this.guitarPlayer = guitarPlayer;
             System.out.println("Pre calculation of notes started");
         } catch (Exception e) {
@@ -45,7 +48,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     @Override
     public void afterParsingFinished() {
         try {
-            guitarActions.add(guitarPlayer.calculateNotes(notes));
+            guitarActions.add(guitarPlayer.calculateNotes(notes, guitarTuning));
             guitarPlayer.printStats(guitarActions);
             notes.clear();
             System.gc();
@@ -64,7 +67,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     public void onNoteParsed(Note note) {
         try {
             if (!note.isHarmonicNote() && !notes.isEmpty()) {
-                final GuitarAction action = guitarPlayer.calculateNotes(notes);
+                final GuitarAction action = guitarPlayer.calculateNotes(notes, guitarTuning);
                 action.timeStamp = currentTimestamp;
                 currentTimestamp += action.timeTillNextNote;
                 guitarActions.add(action);

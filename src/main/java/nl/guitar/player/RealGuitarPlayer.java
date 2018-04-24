@@ -38,7 +38,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     @Override
     void prepareString(GuitarNote gn) {
-        if (gn.getStringNumber() == -1) {
+        if (gn.getStringNumber() == -1 && gn.getNoteValue() > 0) {
             logger.info("Not a correct string for {}", gn);
             return;
         }

@@ -53,6 +53,7 @@ public class ConfigResource {
 				if (i % 2 != 0) {
 					row.get(i).address = row.get(i-1).address;
 					row.get(i).port = row.get(i-1).port;
+					row.get(i).free = row.get(i-1).free;
 				}
 			}
 		}

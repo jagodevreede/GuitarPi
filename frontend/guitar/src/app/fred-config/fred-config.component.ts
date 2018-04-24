@@ -40,4 +40,10 @@ export class FredConfigComponent implements OnInit {
     });
   }
 
+  resetAll() {
+    this.http.post(this.baseUrl + 'config/fred', this.config).subscribe(res => {
+      this.http.get(this.baseUrl + 'test/fred/reset_all').subscribe(res => console.log("Reset all Freds"));
+    });
+  }
+
 }

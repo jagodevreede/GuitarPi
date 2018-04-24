@@ -1,34 +1,49 @@
 package nl.guitar.player.object;
 
-
+import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.theory.Note;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 public class GuitarNote {
-    private static final int[] stringStartNote = new int[] { 28, 33, 38, 43, 47, 52};
-    private int stringNumber = -1;
+    private final static short NO_STRING = -1;
+    private short stringNumber = NO_STRING;
     private int fred = 0;
     private boolean hit = true;
     private String name;
     private final int noteValue;
 
-    public GuitarNote(Note note) {
+    public GuitarNote(Note note, GuitarTuning guitarTuning, List<Short> stringsTaken) {
         name = note.toString();
         noteValue = note.getValue();
-       /* if (noteValue > 56) {
-            noteValue -= 12;
-            System.out.println("Note " + note + " is to high (" + note.getValue() + ") using a octave lower");
-        }*/
+
+        List<Short> possibleStringNumber = new ArrayList<>(6);
+
         for (short i = 0; i < 6; i++) {
-            if (noteValue >= stringStartNote[i]) {
-                stringNumber = i;
+            if (noteValue >= guitarTuning.getStartNote(i) && noteValue <= guitarTuning.getEndNote(i)) {
+                possibleStringNumber.add(i);
             }
         }
+        if (!possibleStringNumber.isEmpty()) {
+            Optional<Short> firstString = possibleStringNumber.stream().filter(s -> !containsString(stringsTaken, s)).sorted().findFirst();
+            stringNumber = firstString.orElseThrow(() -> new IllegalStateException("No Strings available for note " + noteValue));
+        }
         if (stringNumber >= 0) {
-            fred = noteValue - stringStartNote[stringNumber];
+            fred = noteValue - guitarTuning.getStartNote(stringNumber);
         }
     }
 
-    public GuitarNote(int stringNumber, int fred, boolean hit) {
+    private static boolean containsString(final List<Short> array, final short v) {
+        for (final short e : array)
+            if (e == v)
+                return true;
+
+        return false;
+    }
+
+    public GuitarNote(short stringNumber, int fred, boolean hit) {
         this.stringNumber = stringNumber;
         this.fred = fred;
         this.hit = hit;
@@ -39,7 +54,7 @@ public class GuitarNote {
         return noteValue;
     }
 
-    public int getStringNumber() {
+    public short getStringNumber() {
         return stringNumber;
     }
 

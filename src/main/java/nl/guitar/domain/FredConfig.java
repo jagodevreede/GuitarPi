@@ -13,7 +13,8 @@ public class FredConfig {
     @Override
     public String toString() {
         return "FredConfig{" +
-                "address=" + address +
+                "note=" + note +
+                ", address=" + address +
                 ", port=" + port +
                 ", free=" + free +
                 ", push=" + push +
