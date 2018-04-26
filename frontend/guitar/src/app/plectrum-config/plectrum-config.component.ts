@@ -39,4 +39,10 @@ export class PlectrumConfigComponent implements OnInit {
     });
   }
 
+  hit(stringNumber: number) {
+    this.http.post(this.baseUrl + 'config/plectrum', this.config).subscribe(res => {
+      this.http.get(this.baseUrl + 'test/hit?string=' + stringNumber).subscribe(res => console.log("Hit string"));
+    });
+  }
+
 }

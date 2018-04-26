@@ -44,7 +44,7 @@ public class StatusWebsocket {
     }
 
     public static void sendToAll(String message) {
-        logger.debug("To all: " + message);
+        logger.trace("To all: " + message);
         for (Session session : sessions) {
             session.getAsyncRemote().sendText(message);
         }

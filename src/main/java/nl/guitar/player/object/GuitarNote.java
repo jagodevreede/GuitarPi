@@ -15,7 +15,7 @@ public class GuitarNote {
     private String name;
     private final int noteValue;
 
-    public GuitarNote(Note note, GuitarTuning guitarTuning, List<Short> stringsTaken) {
+    public GuitarNote(Note note, GuitarTuning guitarTuning, int[] stringsTaken) {
         name = note.toString();
         noteValue = note.getValue();
 
@@ -27,8 +27,8 @@ public class GuitarNote {
             }
         }
         if (!possibleStringNumber.isEmpty()) {
-            Optional<Short> firstString = possibleStringNumber.stream().filter(s -> !containsString(stringsTaken, s)).sorted().findFirst();
-            stringNumber = firstString.orElseThrow(() -> new IllegalStateException("No Strings available for note " + noteValue));
+            Optional<Short> firstString = possibleStringNumber.stream().filter(s -> stringsTaken[s] == -1 || stringsTaken[s] == note.getValue()).sorted().findFirst();
+            stringNumber = firstString.orElseThrow(() -> new IllegalStateException("No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "]"));
         }
         if (stringNumber >= 0) {
             fred = noteValue - guitarTuning.getStartNote(stringNumber);

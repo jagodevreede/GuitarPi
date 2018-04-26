@@ -5,11 +5,14 @@ import com.google.common.io.Resources;
 import nl.guitar.data.ConfigRepository;
 import nl.guitar.musicxml.MusicXmlParserListener;
 import nl.guitar.player.GuitarPlayer;
+import nl.guitar.player.RealGuitarPlayer;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.tuning.DefaultTuning;
 import nl.guitar.player.tuning.GuitarTuning;
 import nu.xom.ParsingException;
 import org.jfugue.integration.MusicXmlParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -20,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PlayerService {
+    private static final Logger logger = LoggerFactory.getLogger(PlayerService.class);
 
     public static final String MUSIC_FOLDER = "music/";
     private GuitarPlayer guitarPlayer;
@@ -33,7 +37,7 @@ public class PlayerService {
 
     public List<String> getAvailableMusic() {
         List<String> result = new ArrayList<>();
-        for (File file : new File("./music/").listFiles((f) -> f.getName().endsWith(".xml"))) {
+        for (File file : new File(MUSIC_FOLDER).listFiles((f) -> f.getName().endsWith(".xml"))) {
             result.add(file.getName().substring(0, file.getName().length() - 4));
         }
         Collections.sort(result);
@@ -67,6 +71,7 @@ public class PlayerService {
             parser.parse(fileContents);
             parser.fireAfterParsingFinished();
         } catch (IOException | ParsingException | ParserConfigurationException e) {
+            logger.error("Failed to load score", e);
             throw new RuntimeException(e);
         }
     }

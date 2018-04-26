@@ -46,4 +46,12 @@ export class FredConfigComponent implements OnInit {
     });
   }
 
+  hit(stringNumber: number) {
+      this.http.get(this.baseUrl + 'test/hit?string=' + stringNumber).subscribe(res => console.log("Hit string"));
+  }
+
+  reset(stringNumber: number) {
+      this.http.get(this.baseUrl + 'test/reset?string=' + stringNumber).subscribe(res => console.log("reset string"));
+  }
+
 }

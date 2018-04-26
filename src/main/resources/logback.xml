@@ -10,6 +10,6 @@
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="nl.guitar.controlers" level="DEBUG" />
+    <logger name="nl.guitar.controlers" level="INFO" />
 
 </configuration>

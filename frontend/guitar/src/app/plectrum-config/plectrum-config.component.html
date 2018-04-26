@@ -17,8 +17,8 @@
   </tr>
   </thead>
   <tbody>
-  <tr class="table-active" *ngFor="let c of config">
-    <th>{{c.note}}</th>
+  <tr class="table-active" *ngFor="let c of config; let sn = index">
+    <th><button type="button" class="btn btn-primary hit" (click)="hit(sn)">Hit {{sn}} - {{c.note}}</button></th>
     <td class="heightSelector">
       <select [(ngModel)]="c.height" class="custom-select">
         <option *ngFor="let h of heights" [ngValue]="h">{{h}}</option>

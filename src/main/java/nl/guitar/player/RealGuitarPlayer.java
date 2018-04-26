@@ -8,6 +8,7 @@ import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.QueryParam;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,20 +16,19 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     private static final Logger logger = LoggerFactory.getLogger(RealGuitarPlayer.class);
 
-    private final List<PlectrumConfig> plectrumConfig;
-    private final List<List<FredConfig>> fredConfig;
+    private List<PlectrumConfig> plectrumConfig;
+    private List<List<FredConfig>> fredConfig;
 
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
+    private long[] fredCount = new long[] { 0, 0, 0, 0, 0, 0 };
 
     public RealGuitarPlayer(Controller controller, ConfigRepository configRepository) {
         super(controller, configRepository);
         logger.info("Starting real guitar player");
-        plectrumConfig = configRepository.loadPlectrumConfig();
-        fredConfig = configRepository.loadFredConfig();
         try {
             close();
-            TimeUnit.SECONDS.sleep(1);
+            controller.waitMilliseconds(1000);
         } catch (InterruptedException  e) {
             logger.error("Failed to load real guitar player", e);
             throw new RuntimeException(e);
@@ -37,7 +37,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
-    void prepareString(GuitarNote gn) {
+    void prepareString1(GuitarNote gn) {
         if (gn.getStringNumber() == -1 && gn.getNoteValue() > 0) {
             logger.info("Not a correct string for {}", gn);
             return;
@@ -51,11 +51,28 @@ public class RealGuitarPlayer extends GuitarPlayer {
             }
             fredPressed[stringNumber] = fredNumber;
             if (fredNumber > 0) {
-                logger.debug("Press fred " + fredNumber);
+                logger.trace("Press fred " + fredNumber);
                 FredConfig fc = fredConfig.get(stringNumber).get(fredNumber - 1);
                 controller.setServoPulse(fc.address, fc.port, fc.push);
             }
         }
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
+    }
+    @Override
+    void prepareString2(GuitarNote gn) {
+        if (gn.getStringNumber() == -1 || !gn.isHit()) {
+            return;
+        }
+        int stringNumber = gn.getStringNumber();
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+
+        float heightDistance = stringConfig.hard - stringConfig.soft;
+        float height = stringConfig.soft;
+        if (fredPressed[stringNumber] > 1) {
+            height = stringConfig.soft + (heightDistance / fredCount[stringNumber] * (fredPressed[stringNumber] -1));
+        }
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, height);
     }
 
     void playString(GuitarNote gn) {
@@ -63,6 +80,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
             return;
         }
         if (gn.isHit()) {
+            logger.debug("Play note: {}", gn);
             float toPos;
             PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
             if (isStringUp[gn.getStringNumber()]) {
@@ -72,7 +90,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
                 toPos = stringConfig.up;
                 isStringUp[gn.getStringNumber()] = true;
             }
-            controller.setServoPulse(stringConfig.portPlectrum, stringConfig.adressPlectrum, toPos);
+            controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
         }
     }
 
@@ -89,19 +107,31 @@ public class RealGuitarPlayer extends GuitarPlayer {
             FredConfig fc = fredConfig.get(stringNumber).get(i);
             if (fc.port > -1) {
                 controller.setServoPulse(fc.address, fc.port, fc.free);
-                logger.debug("reset fred servo {}", fc);
+                logger.trace("reset fred servo {}", fc);
             }
         }
     }
 
     @Override
-    public void close() {
+    public void close() throws InterruptedException {
         logger.debug("Reset servo positions");
+        plectrumConfig = configRepository.loadPlectrumConfig();
+        fredConfig = configRepository.loadFredConfig();
         for (int i = 0; i < 6; i++) {
-            resetFred(i);
+            fredCount[i] = fredConfig.get(i).stream().filter(f -> f.port > -1).count();
+            List<FredConfig> configs = fredConfig.get(i);
+            for (int j = 0; j < configs.size(); j += 2) {
+                FredConfig fredConfig = configs.get(j);
+                if (fredConfig.port > -1) {
+                    controller.setServoPulse(fredConfig.address, fredConfig.port, fredConfig.push);
+                    Thread.sleep(GuitarPlayer.PREPARE_TIME);
+                    controller.setServoPulse(fredConfig.address, fredConfig.port, fredConfig.free);
+                }
+            }
             PlectrumConfig config = plectrumConfig.get(i);
+            controller.setServoPulse(config.adressHeight, config.portHeight, config.free);
+            Thread.sleep(PREPARE_TIME);
             controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
-            controller.setServoPulse(config.adressHeight, config.portHeight, config.soft);
         }
     }
 }

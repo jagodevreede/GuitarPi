@@ -5,6 +5,7 @@ import nl.guitar.data.ConfigRepository;
 import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.domain.TestState;
+import nl.guitar.player.GuitarPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,9 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class TestResource {
 	private static final Logger logger = LoggerFactory.getLogger(TestResource.class);
+
+    private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
+    private int[] fredPosition = new int[] { -1, -1, -1, -1, -1, -1 };
 
 	private final ConfigRepository repository;
 	private final Controller controller;
@@ -48,15 +52,64 @@ public class TestResource {
         }
     }
 
+    @GET
+    @Path("hit")// ?string' + stringNumber
+    public void hitFred(@QueryParam("string") int stringNumber) throws InterruptedException {
+        List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
+        PlectrumConfig stringConfig = plectrumConfigs.get(stringNumber);
+        float heightDistance = stringConfig.hard - stringConfig.soft;
+        long fredCount = repository.loadFredConfig().get(stringNumber).stream().filter(f -> f.port > -1).count();
+        float height = stringConfig.soft;
+        if (fredPosition[stringNumber] > 0) {
+            height = stringConfig.soft + (heightDistance / fredCount * fredPosition[stringNumber]);
+        }
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
+        Thread.sleep(75);
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, height);
+        
+        Thread.sleep(75);
+
+        float toPos;
+        if (isStringUp[stringNumber]) {
+            toPos = stringConfig.down;
+            isStringUp[stringNumber] = false;
+        } else {
+            toPos = stringConfig.up;
+            isStringUp[stringNumber] = true;
+        }
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
+    }
+
+    @GET
+    @Path("reset")// ?string' + stringNumber
+    public void resetString(@QueryParam("string") int stringNumber) throws InterruptedException {
+        List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
+        List<FredConfig> configs = fredConfigs.get(stringNumber);
+        for (int i = 0; i < configs.size(); i += 2) {
+            FredConfig config = configs.get(i);
+            if (config.port > -1) {
+                controller.setServoPulse(config.address, config.port, config.push);
+                Thread.sleep(GuitarPlayer.PREPARE_TIME);
+                controller.setServoPulse(config.address, config.port, config.free);
+            }
+        }
+    }
+
 	@GET
     @Path("fred")// ?string' + stringNumber + '&fred=' + fredNumber + '&pos=' + pos
     public void testFred(@QueryParam("string") int stringNumber, @QueryParam("fred") int fredNumber, @QueryParam("pos") String pos) {
         List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
+        if (fredPosition[stringNumber] != fredNumber && fredPosition[stringNumber] != -1) {
+            FredConfig config = fredConfigs.get(stringNumber).get(fredPosition[stringNumber]);
+            controller.setServoPulse(config.address, config.port, config.free);
+        }
         FredConfig config = fredConfigs.get(stringNumber).get(fredNumber);
         final float pushValue;
         if ("push".equalsIgnoreCase(pos)) {
+            fredPosition[stringNumber] = fredNumber;
             pushValue = config.push;
         } else {
+            fredPosition[stringNumber] = -1;
             pushValue = config.free;
         }
         logger.debug("Testing fred {} on string {} to value {}", fredNumber, stringNumber, pushValue);
@@ -119,7 +172,7 @@ public class TestResource {
     }
 
 	@POST
-	public void savePlectrumConfig(List<TestState> testStates) throws IOException, InterruptedException {
+	public void testPlectrumConfig(List<TestState> testStates) throws IOException, InterruptedException {
         List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
         for (int i = 0; i < testStates.size(); i++) {
 		    TestState ts = testStates.get(i);

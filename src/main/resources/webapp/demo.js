@@ -109,7 +109,7 @@
             new_uri = "ws:";
         }
         new_uri += "//" + loc.host;
-        new_uri += loc.pathname + "status-ws";
+        new_uri += "/status-ws";
         var connection = new WebSocket(new_uri);
 
         connection.onmessage = function (e) {

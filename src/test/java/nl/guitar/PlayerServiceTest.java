@@ -11,7 +11,6 @@ import org.testng.annotations.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.testng.Assert.assertEquals;
 
@@ -28,9 +27,51 @@ public class PlayerServiceTest {
     }
 
     @Test
+    public void testTest() {
+        playerService.load("test.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
     public void testLoad() {
         playerService.load("ice_winter_rock.xml");
         playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void testbumblebee() {
+        playerService.load("flight_of_the_bumblebee.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void testPirates() {
+        playerService.load("pirates_of_the_caribbean_full.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void testSlowDown() {
+        playerService.load("slow_down_brother.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void testDust() {
+        playerService.load("Dust-all.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
     }
 
     @Test
@@ -40,6 +81,7 @@ public class PlayerServiceTest {
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
         assertEquals(playableGuitarNotes.size(), 5);
+        assertEquals(getErrors(actions), "", "There should be no errors");
     }
 
     @Test
@@ -51,10 +93,15 @@ public class PlayerServiceTest {
         assertEquals(playableGuitarNotes.size(), 2);
         assertEquals(playableGuitarNotes.get(0).getStringNumber(), 0);
         assertEquals(playableGuitarNotes.get(1).getStringNumber(), 1);
+        assertEquals(getErrors(actions), "", "There should be no errors");
     }
 
     private List<GuitarNote> getPlayableNotes(List<GuitarAction> actions) {
         return actions.stream().flatMap(a -> a.notesToPlay.stream()).filter(GuitarNote::isHit).collect(Collectors.toList());
+    }
+
+    private String getErrors(List<GuitarAction> actions) {
+        return actions.stream().filter(n -> n.error != null).map(n -> n.error).collect(Collectors.joining(", "));
     }
 
 }
