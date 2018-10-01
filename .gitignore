@@ -31,3 +31,5 @@ logs/
 
 # Java class files
 *.class
+
+*.cache

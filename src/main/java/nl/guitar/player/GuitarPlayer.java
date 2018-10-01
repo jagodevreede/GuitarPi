@@ -23,7 +23,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
     protected final Controller controller;
     protected final ConfigRepository configRepository;
     private int notesBarsPlayed;
-    private float tempo = 80;
+    private float tempo = 60;
     private boolean isStopped = false;
     private List<GuitarAction> lastPlayedActions;
 
@@ -34,6 +34,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
 
     abstract void prepareString1(GuitarNote gn);
     abstract void prepareString2(GuitarNote gn);
+    abstract void prepareString3(GuitarNote gn);
 
     abstract void playString(GuitarNote gn);
 
@@ -59,7 +60,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
                     GuitarNote gn = new GuitarNote(note, guitarTuning, stringsTaken);
                     notesToPlay.add(gn);
                     stringsTaken[gn.getStringNumber()] = gn.getNoteValue();
-                    logger.debug("Duration = " + note.getDuration());
+                    logger.debug("Duration = {}", note.getDuration());
                     //logger.debug("har " + note.isHarmonicNote());
                     //logger.debug("mel " + note.isMelodicNote());
                 }
@@ -115,9 +116,11 @@ public abstract class GuitarPlayer implements AutoCloseable {
     private void playNotes(List<GuitarNote> notesToPlay){
         notesBarsPlayed++;
         notesToPlay.forEach(this::prepareString1);
-        controller.waitMilliseconds(PREPARE_TIME /2);
+        controller.waitMilliseconds(PREPARE_TIME /3);
         notesToPlay.forEach(this::prepareString2);
-        controller.waitMilliseconds(PREPARE_TIME /2);
+        controller.waitMilliseconds(PREPARE_TIME /3);
+        notesToPlay.forEach(this::prepareString3);
+        controller.waitMilliseconds(PREPARE_TIME /3);
 
         notesToPlay.forEach(this::playString);
     }

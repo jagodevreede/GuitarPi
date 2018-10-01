@@ -65,19 +65,12 @@ public class TestResource {
         }
         controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
         Thread.sleep(75);
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.up);
+
         controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, height);
-        
         Thread.sleep(75);
 
-        float toPos;
-        if (isStringUp[stringNumber]) {
-            toPos = stringConfig.down;
-            isStringUp[stringNumber] = false;
-        } else {
-            toPos = stringConfig.up;
-            isStringUp[stringNumber] = true;
-        }
-        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.down);
     }
 
     @GET

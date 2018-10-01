@@ -8,9 +8,7 @@ import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.QueryParam;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class RealGuitarPlayer extends GuitarPlayer {
 
@@ -59,8 +57,21 @@ public class RealGuitarPlayer extends GuitarPlayer {
         PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
         controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
     }
+
     @Override
     void prepareString2(GuitarNote gn) {
+        if (gn.getStringNumber() == -1 || !gn.isHit()) {
+            return;
+        }
+        int stringNumber = gn.getStringNumber();
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.up);
+        isStringUp[stringNumber] = true;
+    }
+
+    @Override
+    void prepareString3(GuitarNote gn) {
         if (gn.getStringNumber() == -1 || !gn.isHit()) {
             return;
         }

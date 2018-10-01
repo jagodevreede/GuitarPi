@@ -43,6 +43,14 @@ public class PlayerServiceTest {
     }
 
     @Test
+    public void testKrytonicght() {
+        playerService.load("3_doors_down-kryptonite_acoustic_2.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
     public void testbumblebee() {
         playerService.load("flight_of_the_bumblebee.xml");
         playerService.start();

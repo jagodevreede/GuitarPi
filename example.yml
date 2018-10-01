@@ -7,6 +7,9 @@ server:
     - type: http
       port: 8080
 
+  requestLog:
+    appenders: []
+
 # Logging settings.
 logging:
 
@@ -18,6 +21,8 @@ logging:
 
     # Sets the level for 'com.example.app' to DEBUG.
     nl.guitar: DEBUG
+    nl.guitar.controlers: INFO
+    io.dropwizard: WARN
 
   appenders:
     - type: console

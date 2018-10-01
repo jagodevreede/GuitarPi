@@ -22,6 +22,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     private long currentTimestamp = 0;
     private final GuitarTuning guitarTuning;
     private GuitarAction lastAction;
+    private final long parseStartTime = System.currentTimeMillis();
 
     public MusicXmlParserListener(GuitarPlayer guitarPlayer, GuitarTuning guitarTuning) {
         try {
@@ -51,20 +52,21 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     @Override
     public void afterParsingFinished() {
         try {
+            logger.debug("Parse done in {}ms", System.currentTimeMillis() - parseStartTime);
             guitarActions.add(guitarPlayer.calculateNotes(notes, guitarTuning, lastAction));
             guitarPlayer.printStats(guitarActions);
             notes.clear();
             lastAction = null;
             System.gc();
-            logger.info("Calculation done starting to play");
-            guitarPlayer.playActions(guitarActions);
-            guitarActions.clear();
-            guitarPlayer.resetFreds();
-            logger.info("Done playing");
+            logger.info("Calculation done starting to play total calculation time {}ms", System.currentTimeMillis() - parseStartTime);
         } catch (Exception e) {
             logger.error("Failed to parse music xml", e);
             throw e;
         }
+    }
+
+    public List<GuitarAction> guitarActions() {
+        return guitarActions;
     }
 
     @Override
