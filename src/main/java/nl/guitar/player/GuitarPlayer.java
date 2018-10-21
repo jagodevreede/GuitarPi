@@ -24,7 +24,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
     protected final ConfigRepository configRepository;
     private int notesBarsPlayed;
     private float tempo = 60;
-    private boolean isStopped = false;
+    private volatile boolean isStopped = false;
     private List<GuitarAction> lastPlayedActions;
 
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
@@ -41,9 +41,9 @@ public abstract class GuitarPlayer implements AutoCloseable {
     public GuitarAction calculateNotes(List<Note> notes, GuitarTuning guitarTuning, GuitarAction lastAction) {
         GuitarAction action = new GuitarAction();
         if (lastAction == null) {
-            action.instuctionNumber = 0;
+            action.instructionNumber = 0;
         } else {
-            action.instuctionNumber = lastAction.instuctionNumber + 1;
+            action.instructionNumber = lastAction.instructionNumber + 1;
         }
         try {
             notes.sort(NoteComparator.INSTANCE);
@@ -85,7 +85,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
             }
             action.notesToPlay = notesToPlay;
         } catch (Exception e) {
-            logger.error("Note calculation error for note ("+ action.instuctionNumber +"): " + e.getMessage());
+            logger.error("Note calculation error for note ("+ action.instructionNumber +"): " + e.getMessage());
             action.error = e.getMessage();
         }
         return action;
@@ -130,14 +130,14 @@ public abstract class GuitarPlayer implements AutoCloseable {
         initStrings();
         isStopped = false;
         StatusWebsocket.sendToAll("start");
-        controller.start();
+        controller.start(PREPARE_TIME);
         for (GuitarAction action : guitarActions) {
-            controller.waitUntilTimestamp(action.timeStamp);
-            StatusWebsocket.sendToAll("next");
-            playNotes(action.notesToPlay);
+            controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);
             if (isStopped) {
                 break;
             }
+            playNotes(action.notesToPlay);
+            StatusWebsocket.sendToAll("next");
         }
         StatusWebsocket.sendToAll("stop");
     }

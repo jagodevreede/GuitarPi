@@ -8,7 +8,7 @@ public class GuitarAction {
     public List<GuitarNote> notesToPlay = new ArrayList<>();
     public long timeTillNextNote;
     public long timeStamp;
-    public int instuctionNumber;
+    public int instructionNumber;
     public String error;
 
     @Override

@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static nl.guitar.util.FileUtil.toSHA1;
+
 public class PlayerService {
     private static final Logger logger = LoggerFactory.getLogger(PlayerService.class);
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +81,7 @@ public class PlayerService {
     public void start() {
         try {
             String hash = toSHA1(fileContents);
-            File cacheFile = new File(MUSIC_FOLDER + "/" + hash + ".cache");
+            File cacheFile = new File(MUSIC_FOLDER + "/" + hash + "-" + guitarTuning.getClass().getSimpleName() + ".cache");
             List<GuitarAction> result = readListFromFile(cacheFile);
             if (result == null) {
                 logger.info("Creating cache file {}", cacheFile.getName());
@@ -116,25 +118,6 @@ public class PlayerService {
         } else {
             return null;
         }
-    }
-
-    public static String toSHA1(String string) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch(NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return byteArrayToHexString(md.digest(string.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    public static String byteArrayToHexString(byte[] b) {
-        String result = "";
-        for (int i = 0; i < b.length; i++) {
-            result += Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
-        }
-        return result;
     }
 
     public void stop() {

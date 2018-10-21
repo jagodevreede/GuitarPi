@@ -1,7 +1,7 @@
 package nl.guitar.controlers;
 
 public interface Controller {
-    void start();
+    void start(long offsetTime);
 
     void setServoPulse(int boardNumber, short port, float v);
 

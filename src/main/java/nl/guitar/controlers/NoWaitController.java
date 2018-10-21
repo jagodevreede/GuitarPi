@@ -2,7 +2,7 @@ package nl.guitar.controlers;
 
 abstract class NoWaitController implements Controller {
 
-    public void start() {
+    public void start(long offsetTime) {
         // no op
     }
 
