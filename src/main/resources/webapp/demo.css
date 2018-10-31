@@ -29,3 +29,14 @@ select {
 table {
     width: 100%;
 }
+
+.java-logo {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  height: 250px;
+}
+
+body {
+  padding-bottom: 250px;
+}

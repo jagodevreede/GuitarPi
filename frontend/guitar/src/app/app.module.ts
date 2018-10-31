@@ -33,7 +33,8 @@ pathMatch: 'full'
   imports: [
     RouterModule.forRoot(
       appRoutes,
-      { enableTracing: false }
+      { enableTracing: false,
+        useHash: true}
     ),
     BrowserModule,
     HttpClientModule,

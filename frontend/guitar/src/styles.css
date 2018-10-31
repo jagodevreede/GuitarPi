@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+.java-logo {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  height: 250px;
+}
+
+body {
+  padding-bottom: 250px;
+}
