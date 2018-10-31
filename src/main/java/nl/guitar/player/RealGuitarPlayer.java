@@ -23,7 +23,6 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     public RealGuitarPlayer(Controller controller, ConfigRepository configRepository) {
         super(controller, configRepository);
-        logger.info("Starting real guitar player");
         try {
             close();
             controller.waitMilliseconds(1000);
@@ -31,11 +30,12 @@ public class RealGuitarPlayer extends GuitarPlayer {
             logger.error("Failed to load real guitar player", e);
             throw new RuntimeException(e);
         }
-        logger.info("Real guitar player ready!");
+        logger.info("Guitar player ready!");
+        this.resetFreds();
     }
 
     @Override
-    void prepareString1(GuitarNote gn) {
+    void prepareStringPressFredAndMovePlectrumToHigh(GuitarNote gn) {
         if (gn.getStringNumber() == -1 && gn.getNoteValue() > 0) {
             logger.info("Not a correct string for {}", gn);
             return;
@@ -59,7 +59,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
-    void prepareString2(GuitarNote gn) {
+    void prepareStringMovePlectrumToUp(GuitarNote gn) {
         if (gn.getStringNumber() == -1 || !gn.isHit()) {
             return;
         }
@@ -71,7 +71,7 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
-    void prepareString3(GuitarNote gn) {
+    void prepareStringMovePlectrumToHitPosition(GuitarNote gn) {
         if (gn.getStringNumber() == -1 || !gn.isHit()) {
             return;
         }
@@ -87,22 +87,20 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     void playString(GuitarNote gn) {
-        if (gn.getStringNumber() == -1) {
+        if (gn.getStringNumber() == -1 || !gn.isHit()) {
             return;
         }
-        if (gn.isHit()) {
-            logger.debug("Play note: {}", gn);
-            float toPos;
-            PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
-            if (isStringUp[gn.getStringNumber()]) {
-                toPos = stringConfig.down;
-                isStringUp[gn.getStringNumber()] = false;
-            } else {
-                toPos = stringConfig.up;
-                isStringUp[gn.getStringNumber()] = true;
-            }
-            controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
+        logger.debug("Play note: {}", gn);
+        float toPos;
+        PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
+        if (isStringUp[gn.getStringNumber()]) {
+            toPos = stringConfig.down;
+            isStringUp[gn.getStringNumber()] = false;
+        } else {
+            toPos = stringConfig.up;
+            isStringUp[gn.getStringNumber()] = true;
         }
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
     }
 
     @Override

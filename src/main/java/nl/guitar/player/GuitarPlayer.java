@@ -32,9 +32,9 @@ public abstract class GuitarPlayer implements AutoCloseable {
         this.configRepository = configRepository;
     }
 
-    abstract void prepareString1(GuitarNote gn);
-    abstract void prepareString2(GuitarNote gn);
-    abstract void prepareString3(GuitarNote gn);
+    abstract void prepareStringPressFredAndMovePlectrumToHigh(GuitarNote gn);
+    abstract void prepareStringMovePlectrumToUp(GuitarNote gn);
+    abstract void prepareStringMovePlectrumToHitPosition(GuitarNote gn);
 
     abstract void playString(GuitarNote gn);
 
@@ -113,14 +113,14 @@ public abstract class GuitarPlayer implements AutoCloseable {
         logger.info("Highest note {}", highestNote);
     }
 
-    private void playNotes(List<GuitarNote> notesToPlay){
+    private void playNotes(List<GuitarNote> notesToPlay, long timeStampWhenNoteShouldSound){
         notesBarsPlayed++;
-        notesToPlay.forEach(this::prepareString1);
+        notesToPlay.forEach(this::prepareStringPressFredAndMovePlectrumToHigh);
         controller.waitMilliseconds(PREPARE_TIME /3);
-        notesToPlay.forEach(this::prepareString2);
+        notesToPlay.forEach(this::prepareStringMovePlectrumToUp);
         controller.waitMilliseconds(PREPARE_TIME /3);
-        notesToPlay.forEach(this::prepareString3);
-        controller.waitMilliseconds(PREPARE_TIME /3);
+        notesToPlay.forEach(this::prepareStringMovePlectrumToHitPosition);
+        controller.waitUntilTimestamp(timeStampWhenNoteShouldSound);
 
         notesToPlay.forEach(this::playString);
     }
@@ -136,7 +136,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
             if (isStopped) {
                 break;
             }
-            playNotes(action.notesToPlay);
+            playNotes(action.notesToPlay, action.timeStamp);
             StatusWebsocket.sendToAll("next");
         }
         StatusWebsocket.sendToAll("stop");
