@@ -7,6 +7,7 @@ import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
 import nl.guitar.player.object.NoteComparator;
+import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.theory.Note;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
 
     abstract void playString(GuitarNote gn);
 
-    public GuitarAction calculateNotes(List<Note> notes, GuitarTuning guitarTuning, GuitarAction lastAction) {
+    public GuitarAction calculateNotes(List<Note> notes, GuitarTuning guitarTuning, GuitarAction lastAction, StringStrategy stringStrategy) {
         GuitarAction action = new GuitarAction();
         if (lastAction == null) {
             action.instructionNumber = 0;
@@ -55,11 +56,15 @@ public abstract class GuitarPlayer implements AutoCloseable {
                 lastAction.notesToPlay.stream().filter(GuitarNote::isHit).forEach(n -> stringsTaken[n.getStringNumber()] = n.getNoteValue());
             }
             for (Note note : notes) {
-                resetFreds();
                 if (!note.isRest()) {
-                    GuitarNote gn = new GuitarNote(note, guitarTuning, stringsTaken);
+                    GuitarNote gn = new GuitarNote(note, guitarTuning, stringsTaken, note.getDuration(), stringStrategy);
                     notesToPlay.add(gn);
-                    stringsTaken[gn.getStringNumber()] = gn.getNoteValue();
+                    if (gn.getStringNumber() == -1) {
+                        action.error = "Unable to play @" + action.instructionNumber + " note value " + note.getValue() + ' ' + note;
+                        logger.warn(action.error);
+                    } else {
+                        stringsTaken[gn.getStringNumber()] = gn.getNoteValue();
+                    }
                     logger.debug("Duration = {}", note.getDuration());
                     //logger.debug("har " + note.isHarmonicNote());
                     //logger.debug("mel " + note.isMelodicNote());
@@ -78,11 +83,11 @@ public abstract class GuitarPlayer implements AutoCloseable {
                 throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings);
             }
 
-            for (short i = 0; i < 6; i++) {
+           /* for (short i = 0; i < 6; i++) {
                 if (!distinctStrings.contains(i)) {
                     notesToPlay.add(new GuitarNote(i, 0, false));
                 }
-            }
+            }*/
             action.notesToPlay = notesToPlay;
         } catch (Exception e) {
             logger.error("Note calculation error for note ("+ action.instructionNumber +"): " + e.getMessage());
@@ -120,8 +125,10 @@ public abstract class GuitarPlayer implements AutoCloseable {
         notesToPlay.forEach(this::prepareStringMovePlectrumToUp);
         controller.waitMilliseconds(PREPARE_TIME /3);
         notesToPlay.forEach(this::prepareStringMovePlectrumToHitPosition);
+
         controller.waitUntilTimestamp(timeStampWhenNoteShouldSound);
 
+        logger.info("Playing notes [{}]: @{}: {}", notesToPlay.size(), timeStampWhenNoteShouldSound, notesToPlay);
         notesToPlay.forEach(this::playString);
     }
 

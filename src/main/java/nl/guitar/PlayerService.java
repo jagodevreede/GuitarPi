@@ -1,5 +1,7 @@
 package nl.guitar;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +14,7 @@ import nl.guitar.player.GuitarPlayer;
 import nl.guitar.player.RealGuitarPlayer;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.tuning.DefaultTuning;
+import nl.guitar.player.tuning.DropDTuning;
 import nl.guitar.player.tuning.GuitarTuning;
 import nu.xom.ParsingException;
 import org.jfugue.integration.MusicXmlParser;
@@ -39,6 +42,8 @@ public class PlayerService {
     private static final ObjectMapper mapper = new ObjectMapper();
     static {
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 
     public static final String MUSIC_FOLDER = "music/";
@@ -79,11 +84,15 @@ public class PlayerService {
     }
 
     public void start() {
+        startWithCache(true);
+    }
+
+    public void startWithCache(boolean useCache) {
         try {
             String hash = toSHA1(fileContents);
             File cacheFile = new File(MUSIC_FOLDER + "/" + hash + "-" + guitarTuning.getClass().getSimpleName() + ".cache");
             List<GuitarAction> result = readListFromFile(cacheFile);
-            if (result == null) {
+            if (result == null || !useCache) {
                 logger.info("Creating cache file {}", cacheFile.getName());
                 MusicXmlParser parser = new MusicXmlParser();
                 MusicXmlParserListener simpleParserListener = new MusicXmlParserListener(guitarPlayer, guitarTuning);
@@ -96,9 +105,12 @@ public class PlayerService {
                 mapper.writeValue(cacheFile, result);
             }
 
-            guitarPlayer.playActions(result);
             guitarPlayer.resetFreds();
+
+            guitarPlayer.playActions(result);
             logger.info("Done playing");
+
+            guitarPlayer.resetFreds();
         } catch (IOException | ParsingException | ParserConfigurationException e) {
             logger.error("Failed to load score", e);
             throw new RuntimeException(e);
@@ -108,9 +120,12 @@ public class PlayerService {
 
     private List<GuitarAction> readListFromFile(File file) {
         if (file.exists()) {
+            long startTime = System.currentTimeMillis();
             try (InputStream is = new FileInputStream(file)) {
-                return mapper.readValue(is, new TypeReference<List<GuitarAction>>() {
+                List<GuitarAction> result = mapper.readValue(is, new TypeReference<List<GuitarAction>>() {
                 });
+                logger.info("Reading cache file {} done in {}ms", System.currentTimeMillis() - startTime);
+                return result;
             } catch (IOException ioe) {
                 logger.error("Failed to load file", ioe);
                 return null;

@@ -85,7 +85,7 @@ public class PlayerServiceTest {
     @Test
     public void testFredE() {
         playerService.load("Test-fred-e.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
         assertEquals(playableGuitarNotes.size(), 5);
@@ -103,6 +103,29 @@ public class PlayerServiceTest {
         assertEquals(playableGuitarNotes.get(1).getStringNumber(), 1);
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
+
+    @Test
+    public void testTwoNotesSameTime() {
+        playerService.load("src/test/resources/","two_notes_same_time.xml");
+        playerService.startWithCache(false);
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
+        assertEquals(playableGuitarNotes.size(), 2);
+        assertEquals(playableGuitarNotes.get(0).getStringNumber(), 0);
+        assertEquals(playableGuitarNotes.get(1).getStringNumber(), 1);
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void test_chapman_tracy_fast_car_small() {
+        playerService.load("chapman_tracy-fast_car_small.xml");
+        playerService.start();
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
+        assertEquals(playableGuitarNotes.size(), 5);
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
 
     private List<GuitarNote> getPlayableNotes(List<GuitarAction> actions) {
         return actions.stream().flatMap(a -> a.notesToPlay.stream()).filter(GuitarNote::isHit).collect(Collectors.toList());

@@ -11,6 +11,10 @@ public class GuitarAction {
     public int instructionNumber;
     public String error;
 
+    public GuitarAction(){
+        super();
+    }
+
     @Override
     public String toString() {
         return "GuitarAction{" +

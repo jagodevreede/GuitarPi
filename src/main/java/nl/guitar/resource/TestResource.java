@@ -1,5 +1,6 @@
 package nl.guitar.resource;
 
+import jdk.nashorn.internal.objects.annotations.Getter;
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
 import nl.guitar.domain.FredConfig;
@@ -62,6 +63,7 @@ public class TestResource {
         float height = stringConfig.soft;
         if (fredPosition[stringNumber] > 0) {
             height = stringConfig.soft + (heightDistance / fredCount * fredPosition[stringNumber]);
+            logger.info("Hit @height: {}", height);
         }
         controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
         Thread.sleep(75);
@@ -71,6 +73,22 @@ public class TestResource {
         Thread.sleep(75);
 
         controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.down);
+    }
+
+    @GET
+    @Path("all")
+    public void all() throws InterruptedException {
+        List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
+
+        for (int i =0; i < plectrumConfigs.size(); i++) {
+            long fredCount = repository.loadFredConfig().get(i).stream().filter(f -> f.port > -1).count();
+            for (int f = 0; f <= fredCount; f++) {
+                testFred(i, f, "push");
+                Thread.sleep(GuitarPlayer.PREPARE_TIME);
+                hitFred(i);
+                Thread.sleep(350);
+            }
+        }
     }
 
     @GET
@@ -86,6 +104,7 @@ public class TestResource {
                 controller.setServoPulse(config.address, config.port, config.free);
             }
         }
+        fredPosition[stringNumber] = 0;
     }
 
 	@GET
@@ -112,7 +131,7 @@ public class TestResource {
 	@GET
     @Path("{repeat}")
     public void testAll(@PathParam("repeat") int repeat) throws IOException, InterruptedException {
-	    final long sleepTime = 100 - 12; //min 70
+	    final long sleepTime = 300; //min 70
         List<PlectrumConfig> plectrumConfigs = repository.loadPlectrumConfig();
         for (int i = 0; i < plectrumConfigs.size(); i++) {
             PlectrumConfig config = plectrumConfigs.get(i);

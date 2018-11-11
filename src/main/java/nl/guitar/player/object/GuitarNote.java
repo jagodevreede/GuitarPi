@@ -1,5 +1,6 @@
 package nl.guitar.player.object;
 
+import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.theory.Note;
 
@@ -13,9 +14,15 @@ public class GuitarNote {
     private int fred = 0;
     private boolean hit = true;
     private String name;
-    private final int noteValue;
+    private int noteValue;
+    private String noteDuration;
 
-    public GuitarNote(Note note, GuitarTuning guitarTuning, int[] stringsTaken) {
+    public GuitarNote() {
+        super();
+    }
+
+    public GuitarNote(Note note, GuitarTuning guitarTuning, int[] stringsTaken, double duration, StringStrategy stringStrategy) {
+        this.noteDuration = String.valueOf(duration);
         name = note.toString();
         noteValue = note.getValue();
 
@@ -27,20 +34,12 @@ public class GuitarNote {
             }
         }
         if (!possibleStringNumber.isEmpty()) {
-            Optional<Short> firstString = possibleStringNumber.stream().filter(s -> stringsTaken[s] == -1 || stringsTaken[s] == note.getValue()).sorted().findFirst();
+            Optional<Short> firstString = stringStrategy.getBestString(possibleStringNumber, stringsTaken, note.getValue());
             stringNumber = firstString.orElseThrow(() -> new IllegalStateException("No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "]"));
         }
         if (stringNumber >= 0) {
             fred = noteValue - guitarTuning.getStartNote(stringNumber);
         }
-    }
-
-    private static boolean containsString(final List<Short> array, final short v) {
-        for (final short e : array)
-            if (e == v)
-                return true;
-
-        return false;
     }
 
     public GuitarNote(short stringNumber, int fred, boolean hit) {
@@ -92,6 +91,7 @@ public class GuitarNote {
     public String toString() {
         return "GuitarNote{" +
                 "noteValue=" + noteValue +
+                ", noteDuration=" + noteDuration +
                 ", stringNumber=" + stringNumber +
                 ", fred=" + fred +
                 ", hit=" + hit +

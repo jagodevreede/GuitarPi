@@ -4,6 +4,7 @@ import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
 import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
+import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +73,6 @@ public class RealGuitarPlayer extends GuitarPlayer {
 
     @Override
     void prepareStringMovePlectrumToHitPosition(GuitarNote gn) {
-        if (gn.getStringNumber() == -1 || !gn.isHit()) {
-            return;
-        }
         int stringNumber = gn.getStringNumber();
         PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
 
@@ -90,7 +88,6 @@ public class RealGuitarPlayer extends GuitarPlayer {
         if (gn.getStringNumber() == -1 || !gn.isHit()) {
             return;
         }
-        logger.debug("Play note: {}", gn);
         float toPos;
         PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
         if (isStringUp[gn.getStringNumber()]) {
@@ -104,11 +101,20 @@ public class RealGuitarPlayer extends GuitarPlayer {
     }
 
     @Override
+    public void playActions(List<GuitarAction> guitarActions) {
+        reloadConfig();
+        super.playActions(guitarActions);
+    }
+
+    @Override
     public void resetFreds() {
         logger.debug("Resetting freds");
         for (int i = 0; i < 6; i++) {
             resetFred(i);
+            controller.waitMilliseconds(350);
         }
+        controller.waitMilliseconds(100);
+        logger.debug("Resetting freds ready");
     }
 
     private void resetFred(int stringNumber) {
@@ -121,11 +127,15 @@ public class RealGuitarPlayer extends GuitarPlayer {
         }
     }
 
+    private void reloadConfig() {
+        plectrumConfig = configRepository.loadPlectrumConfig();
+        fredConfig = configRepository.loadFredConfig();
+    }
+
     @Override
     public void close() throws InterruptedException {
         logger.debug("Reset servo positions");
-        plectrumConfig = configRepository.loadPlectrumConfig();
-        fredConfig = configRepository.loadFredConfig();
+        reloadConfig();
         for (int i = 0; i < 6; i++) {
             fredCount[i] = fredConfig.get(i).stream().filter(f -> f.port > -1).count();
             List<FredConfig> configs = fredConfig.get(i);

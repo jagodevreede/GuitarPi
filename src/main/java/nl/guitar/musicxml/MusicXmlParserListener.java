@@ -2,6 +2,9 @@ package nl.guitar.musicxml;
 
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.GuitarPlayer;
+import nl.guitar.player.strategy.ComplexStringStrategy;
+import nl.guitar.player.strategy.HighStringStrategy;
+import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.parser.ParserListenerAdapter;
 import org.jfugue.theory.Note;
@@ -23,11 +26,13 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     private final GuitarTuning guitarTuning;
     private GuitarAction lastAction;
     private final long parseStartTime = System.currentTimeMillis();
+    private StringStrategy stringStrategy;
 
     public MusicXmlParserListener(GuitarPlayer guitarPlayer, GuitarTuning guitarTuning) {
         try {
             this.guitarTuning = guitarTuning;
             this.guitarPlayer = guitarPlayer;
+            stringStrategy = new ComplexStringStrategy(guitarTuning);
             logger.info("Pre calculation of notes started");
         } catch (Exception e) {
             logger.error("Failed to parse music xml", e);
@@ -53,7 +58,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     public void afterParsingFinished() {
         try {
             logger.debug("Parse done in {}ms", System.currentTimeMillis() - parseStartTime);
-            guitarActions.add(guitarPlayer.calculateNotes(notes, guitarTuning, lastAction));
+            guitarActions.add(guitarPlayer.calculateNotes(notes, guitarTuning, lastAction, stringStrategy));
             guitarPlayer.printStats(guitarActions);
             notes.clear();
             lastAction = null;
@@ -74,7 +79,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
         logger.debug("Parsing note {}", note);
         try {
             if (!note.isHarmonicNote() && !notes.isEmpty()) {
-                final GuitarAction action = guitarPlayer.calculateNotes(notes, guitarTuning, lastAction);
+                final GuitarAction action = guitarPlayer.calculateNotes(notes, guitarTuning, lastAction, stringStrategy);
                 action.timeStamp = currentTimestamp;
                 currentTimestamp += action.timeTillNextNote;
                 guitarActions.add(action);
