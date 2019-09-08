@@ -1,14 +1,19 @@
 package nl.guitar.player.object;
 
+import nl.guitar.player.GuitarPlayer;
 import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
 import org.jfugue.theory.Note;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class GuitarNote {
+    private static final Logger logger = LoggerFactory.getLogger(GuitarNote.class);
     private final static short NO_STRING = -1;
     private short stringNumber = NO_STRING;
     private int fred = 0;
@@ -35,10 +40,13 @@ public class GuitarNote {
         }
         if (!possibleStringNumber.isEmpty()) {
             Optional<Short> firstString = stringStrategy.getBestString(possibleStringNumber, stringsTaken, note.getValue());
-            stringNumber = firstString.orElseThrow(() -> new IllegalStateException("No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "]"));
+            logger.warn("[" + stringStrategy.getClass().getSimpleName() + "] No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "] => " + Arrays.asList(stringsTaken));
+            stringNumber = firstString.orElse(NO_STRING);
         }
         if (stringNumber >= 0) {
             fred = noteValue - guitarTuning.getStartNote(stringNumber);
+        } else {
+            hit = false;
         }
     }
 

@@ -1,20 +1,14 @@
 package nl.guitar;
 
-import nl.guitar.controlers.Controller;
-import nl.guitar.data.ConfigRepository;
-import nl.guitar.player.GuitarPlayer;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.EnumSet;
-
 import io.dropwizard.websockets.WebsocketBundle;
-import nl.guitar.player.RealGuitarPlayer;
+import nl.guitar.controlers.Controller;
+import nl.guitar.data.ConfigRepository;
+import nl.guitar.player.GuitarPlayer;
 import nl.guitar.resource.ConfigResource;
 import nl.guitar.resource.MusicResource;
 import nl.guitar.resource.TestResource;
@@ -23,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration.Dynamic;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.EnumSet;
 
 public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
 	private WebsocketBundle websocketBundle;
@@ -63,7 +60,7 @@ public class GuitarPlayerApp extends Application<GuitarAppConfiguration> {
     }
 
 	private PlayerService getPlayerService(Controller controller) {
-		GuitarPlayer guitarPlayer = new RealGuitarPlayer(controller, new ConfigRepository());
+		GuitarPlayer guitarPlayer = new GuitarPlayer(controller, new ConfigRepository());
 
 		return new PlayerService(guitarPlayer);
 	}

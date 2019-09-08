@@ -1,20 +1,22 @@
 package nl.guitar.musicxml;
 
-import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.GuitarPlayer;
+import nl.guitar.player.object.GuitarAction;
+import nl.guitar.player.object.GuitarNote;
 import nl.guitar.player.strategy.ComplexStringStrategy;
 import nl.guitar.player.strategy.HighStringStrategy;
+import nl.guitar.player.strategy.LowStringStrategy;
 import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
+import org.jfugue.parser.Parser;
 import org.jfugue.parser.ParserListenerAdapter;
 import org.jfugue.theory.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static nl.guitar.player.GuitarPlayer.MINIMUM_MS_BETWEEN_NOTES;
 
 public class MusicXmlParserListener extends ParserListenerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(MusicXmlParserListener.class);
@@ -26,13 +28,13 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     private final GuitarTuning guitarTuning;
     private GuitarAction lastAction;
     private final long parseStartTime = System.currentTimeMillis();
-    private StringStrategy stringStrategy;
+    private final List<StringStrategy> stringStrategies;
 
     public MusicXmlParserListener(GuitarPlayer guitarPlayer, GuitarTuning guitarTuning) {
         try {
             this.guitarTuning = guitarTuning;
             this.guitarPlayer = guitarPlayer;
-            stringStrategy = new ComplexStringStrategy(guitarTuning);
+            stringStrategies = Arrays.asList(new ComplexStringStrategy(guitarTuning), new HighStringStrategy(), new LowStringStrategy());
             logger.info("Pre calculation of notes started");
         } catch (Exception e) {
             logger.error("Failed to parse music xml", e);
@@ -58,7 +60,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
     public void afterParsingFinished() {
         try {
             logger.debug("Parse done in {}ms", System.currentTimeMillis() - parseStartTime);
-            guitarActions.add(guitarPlayer.calculateNotes(notes, guitarTuning, lastAction, stringStrategy));
+            guitarActions.add(getBestAction());
             guitarPlayer.printStats(guitarActions);
             notes.clear();
             lastAction = null;
@@ -70,6 +72,26 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
         }
     }
 
+    private GuitarAction getBestAction() {
+        GuitarAction bestAction = null;
+        for (StringStrategy stringStrategy : stringStrategies) {
+            GuitarAction action = guitarPlayer.calculateNotes(notes, guitarTuning, lastAction, stringStrategy);
+            if (action.error == null) {
+                return action;
+            }
+            if (bestAction == null) {
+                bestAction = action;
+            } else if (getHitCount(bestAction) < getHitCount(action)) {
+                bestAction = action;
+            }
+        }
+        return bestAction;
+    }
+
+    private static long getHitCount(GuitarAction action) {
+        return action.notesToPlay.stream().filter(GuitarNote::isHit).count();
+    }
+
     public List<GuitarAction> guitarActions() {
         return guitarActions;
     }
@@ -79,7 +101,7 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
         logger.debug("Parsing note {}", note);
         try {
             if (!note.isHarmonicNote() && !notes.isEmpty()) {
-                final GuitarAction action = guitarPlayer.calculateNotes(notes, guitarTuning, lastAction, stringStrategy);
+                final GuitarAction action = getBestAction();
                 action.timeStamp = currentTimestamp;
                 currentTimestamp += action.timeTillNextNote;
                 guitarActions.add(action);

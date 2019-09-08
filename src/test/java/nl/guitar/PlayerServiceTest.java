@@ -4,10 +4,10 @@ import nl.guitar.controlers.Controller;
 import nl.guitar.controlers.NoOpController;
 import nl.guitar.data.ConfigRepository;
 import nl.guitar.player.GuitarPlayer;
-import nl.guitar.player.RealGuitarPlayer;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
-import org.testng.annotations.*;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +22,7 @@ public class PlayerServiceTest {
     @BeforeClass
     public void setUp() {
         Controller controller = new NoOpController();
-        guitarPlayer = new RealGuitarPlayer(controller, new ConfigRepository());
+        guitarPlayer = new GuitarPlayer(controller, new ConfigRepository());
         playerService = new PlayerService(guitarPlayer);
     }
 
@@ -95,7 +95,7 @@ public class PlayerServiceTest {
     @Test
     public void testTwoNotesOneString() {
         playerService.load("src/test/resources/","two_notes_one_string.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
         assertEquals(playableGuitarNotes.size(), 2);

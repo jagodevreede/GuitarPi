@@ -1,8 +1,10 @@
 package nl.guitar.player;
 
+import jdk.nashorn.internal.runtime.options.Option;
 import nl.guitar.StatusWebsocket;
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
+import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.object.GuitarNote;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class GuitarPlayer implements AutoCloseable {
+public class GuitarPlayer implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(GuitarPlayer.class);
     public static final int PREPARE_TIME = 150;
     public static final int MINIMUM_MS_BETWEEN_NOTES = 150;
@@ -28,16 +30,27 @@ public abstract class GuitarPlayer implements AutoCloseable {
     private volatile boolean isStopped = false;
     private List<GuitarAction> lastPlayedActions;
 
+
+    private List<PlectrumConfig> plectrumConfig;
+    private List<List<FredConfig>> fredConfig;
+
+    private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
+    private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
+    private long[] fredCount = new long[] { 0, 0, 0, 0, 0, 0 };
+
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
         this.configRepository = configRepository;
+        try {
+            close();
+            controller.waitMilliseconds(1000);
+        } catch (InterruptedException  e) {
+            logger.error("Failed to load guitar player", e);
+            throw new RuntimeException(e);
+        }
+        logger.info("Guitar player ready!");
+        this.resetFreds();
     }
-
-    abstract void prepareStringPressFredAndMovePlectrumToHigh(GuitarNote gn);
-    abstract void prepareStringMovePlectrumToUp(GuitarNote gn);
-    abstract void prepareStringMovePlectrumToHitPosition(GuitarNote gn);
-
-    abstract void playString(GuitarNote gn);
 
     public GuitarAction calculateNotes(List<Note> notes, GuitarTuning guitarTuning, GuitarAction lastAction, StringStrategy stringStrategy) {
         GuitarAction action = new GuitarAction();
@@ -60,7 +73,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
                     GuitarNote gn = new GuitarNote(note, guitarTuning, stringsTaken, note.getDuration(), stringStrategy);
                     notesToPlay.add(gn);
                     if (gn.getStringNumber() == -1) {
-                        action.error = "Unable to play @" + action.instructionNumber + " note value " + note.getValue() + ' ' + note;
+                        action.error = "[" + stringStrategy.getClass().getSimpleName() +"] Unable to play @" + action.instructionNumber + " note value " + note.getValue() + ' ' + note;
                         logger.warn(action.error);
                     } else {
                         stringsTaken[gn.getStringNumber()] = gn.getNoteValue();
@@ -76,18 +89,13 @@ public abstract class GuitarPlayer implements AutoCloseable {
             }
             action.timeTillNextNote = shortestNote;
 
-            List<Short> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).distinct().collect(Collectors.toList());
+            List<Short> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).filter(s -> s >= 0).distinct().collect(Collectors.toList());
             if (notesToPlay.size() > distinctStrings.size()) {
                 logger.error("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings + " time since last note:" + (lastAction != null ? lastAction.timeTillNextNote : -10));
-                notesToPlay.forEach((n) -> logger.error(n.toString()));
-                throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings);
+                //notesToPlay.forEach((n) -> logger.error(n.toString()));
+                //throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings);
             }
 
-           /* for (short i = 0; i < 6; i++) {
-                if (!distinctStrings.contains(i)) {
-                    notesToPlay.add(new GuitarNote(i, 0, false));
-                }
-            }*/
             action.notesToPlay = notesToPlay;
         } catch (Exception e) {
             logger.error("Note calculation error for note ("+ action.instructionNumber +"): " + e.getMessage());
@@ -97,25 +105,30 @@ public abstract class GuitarPlayer implements AutoCloseable {
     }
 
     public void printStats(List<GuitarAction> actions) {
-        long shortestNote = actions.stream()
+        logger.info("Number statistics:");
+        if (actions.isEmpty()) {
+            logger.info("  No actions!");
+            return;
+        }
+        String shortestNote = actions.stream()
                 .map((GuitarAction a) -> a.timeTillNextNote)
                 .min(Long::compare)
-                .get();
+                .toString();
         final List<Integer> notes = actions.stream()
                 .flatMap((GuitarAction a) -> a.notesToPlay.stream()
                         .map(GuitarNote::getNoteValue)
                 ).filter(i -> i > 0)
                 .collect(Collectors.toList());
-        long lowestNote = notes.stream()
+        String lowestNote = notes.stream()
                 .min(Integer::compare)
-                .get();
-        long highestNote = notes.stream()
+                .toString();
+        String highestNote = notes.stream()
                 .max(Integer::compare)
-                .get();
-        logger.info("Number statistics:");
-        logger.info("Shortest note {}ms", shortestNote);
-        logger.info("Lowest note {}", lowestNote);
-        logger.info("Highest note {}", highestNote);
+                .toString();
+        logger.info("  Errors: {}", actions.stream().filter(a -> a.error != null).count());
+        logger.info("  Shortest note {}ms", shortestNote);
+        logger.info("  Lowest note {}", lowestNote);
+        logger.info("  Highest note {}", highestNote);
     }
 
     private void playNotes(List<GuitarNote> notesToPlay, long timeStampWhenNoteShouldSound){
@@ -133,6 +146,7 @@ public abstract class GuitarPlayer implements AutoCloseable {
     }
 
     public void playActions(List<GuitarAction> guitarActions) {
+        reloadConfig();
         this.lastPlayedActions = new ArrayList<>(guitarActions);
         initStrings();
         isStopped = false;
@@ -162,8 +176,6 @@ public abstract class GuitarPlayer implements AutoCloseable {
         return lastPlayedActions;
     }
 
-    abstract public void resetFreds();
-
     public void setTempo(int tempo) {
         logger.info("Tempo changed to = " + tempo);
         this.tempo = tempo;
@@ -173,5 +185,117 @@ public abstract class GuitarPlayer implements AutoCloseable {
         this.isStopped = true;
     }
 
+    void prepareStringPressFredAndMovePlectrumToHigh(GuitarNote gn) {
+        if (gn.getStringNumber() == -1 && gn.getNoteValue() > 0) {
+            logger.debug("Not a correct string for {}", gn);
+            return;
+        }
+        int stringNumber = gn.getStringNumber();
+        int fredNumber = gn.getFred();
+
+        if (fredPressed[stringNumber] != fredNumber) {
+            if (fredPressed[stringNumber] > 0) {
+                resetFred(stringNumber);
+            }
+            fredPressed[stringNumber] = fredNumber;
+            if (fredNumber > 0) {
+                logger.trace("Press fred " + fredNumber);
+                FredConfig fc = fredConfig.get(stringNumber).get(fredNumber - 1);
+                controller.setServoPulse(fc.address, fc.port, fc.push);
+            }
+        }
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
+    }
+
+    void prepareStringMovePlectrumToUp(GuitarNote gn) {
+        final int stringNumber = gn.getStringNumber();
+        if (gn.getStringNumber() == -1 || !gn.isHit()) {
+            return;
+        }
+
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.up);
+        isStringUp[stringNumber] = true;
+    }
+
+    void prepareStringMovePlectrumToHitPosition(GuitarNote gn) {
+        final int stringNumber = gn.getStringNumber();
+        if (stringNumber == -1 || !gn.isHit()) {
+            return;
+        }
+        PlectrumConfig stringConfig = plectrumConfig.get(stringNumber);
+
+        float heightDistance = stringConfig.hard - stringConfig.soft;
+        float height = stringConfig.soft;
+        if (fredPressed[stringNumber] > 1) {
+            height = stringConfig.soft + (heightDistance / fredCount[stringNumber] * (fredPressed[stringNumber] -1));
+        }
+        controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, height);
+    }
+
+    void playString(GuitarNote gn) {
+        if (gn.getStringNumber() == -1 || !gn.isHit()) {
+            return;
+        }
+        float toPos;
+        PlectrumConfig stringConfig = plectrumConfig.get(gn.getStringNumber());
+        if (isStringUp[gn.getStringNumber()]) {
+            toPos = stringConfig.down;
+            isStringUp[gn.getStringNumber()] = false;
+        } else {
+            toPos = stringConfig.up;
+            isStringUp[gn.getStringNumber()] = true;
+        }
+        controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, toPos);
+    }
+
+    public void resetFreds() {
+        logger.debug("Resetting freds");
+        for (int i = 0; i < 6; i++) {
+            resetFred(i);
+            controller.waitMilliseconds(350);
+        }
+        controller.waitMilliseconds(100);
+        logger.debug("Resetting freds ready");
+    }
+
+    private void resetFred(int stringNumber) {
+        for (int i = 0; i < fredConfig.get(stringNumber).size(); i += 2) {
+            FredConfig fc = fredConfig.get(stringNumber).get(i);
+            if (fc.port > -1) {
+                controller.setServoPulse(fc.address, fc.port, fc.free);
+                logger.trace("reset fred servo {}", fc);
+            }
+        }
+    }
+
+    private void reloadConfig() {
+        plectrumConfig = configRepository.loadPlectrumConfig();
+        fredConfig = configRepository.loadFredConfig();
+    }
+
+    @Override
+    public void close() throws InterruptedException {
+        logger.debug("Reset servo positions");
+        reloadConfig();
+        for (int i = 0; i < 6; i++) {
+            fredCount[i] = fredConfig.get(i).stream().filter(f -> f.port > -1).count();
+            List<FredConfig> configs = fredConfig.get(i);
+            for (int j = 0; j < configs.size(); j += 2) {
+                FredConfig fredConfig = configs.get(j);
+                if (fredConfig.port > -1) {
+                    controller.setServoPulse(fredConfig.address, fredConfig.port, fredConfig.push);
+                    Thread.sleep(GuitarPlayer.PREPARE_TIME);
+                    controller.setServoPulse(fredConfig.address, fredConfig.port, fredConfig.free);
+                }
+            }
+            PlectrumConfig config = plectrumConfig.get(i);
+            controller.setServoPulse(config.adressHeight, config.portHeight, config.free);
+            Thread.sleep(PREPARE_TIME);
+            controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
+        }
+    }
 
 }
