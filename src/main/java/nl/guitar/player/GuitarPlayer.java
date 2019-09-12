@@ -1,6 +1,5 @@
 package nl.guitar.player;
 
-import jdk.nashorn.internal.runtime.options.Option;
 import nl.guitar.StatusWebsocket;
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
@@ -17,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class GuitarPlayer implements AutoCloseable {
@@ -27,7 +29,6 @@ public class GuitarPlayer implements AutoCloseable {
     protected final ConfigRepository configRepository;
     private int notesBarsPlayed;
     private float tempo = 60;
-    private volatile boolean isStopped = false;
     private List<GuitarAction> lastPlayedActions;
 
 
@@ -145,20 +146,29 @@ public class GuitarPlayer implements AutoCloseable {
         notesToPlay.forEach(this::playString);
     }
 
+    private ThreadPoolExecutor executorService = null;
+
     public void playActions(List<GuitarAction> guitarActions) {
+        executorService = new ThreadPoolExecutor(2, 2,
+                60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>());
         reloadConfig();
         this.lastPlayedActions = new ArrayList<>(guitarActions);
         initStrings();
-        isStopped = false;
         StatusWebsocket.sendToAll("start");
         controller.start(PREPARE_TIME);
         for (GuitarAction action : guitarActions) {
-            controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);
-            if (isStopped) {
-                break;
-            }
-            playNotes(action.notesToPlay, action.timeStamp);
-            StatusWebsocket.sendToAll("next");
+            executorService.execute(() -> {
+                    controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);
+                playNotes(action.notesToPlay, action.timeStamp);
+                StatusWebsocket.sendToAll("next");
+            });
+        }
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            logger.error("Failed waiting for termination of thread pool", e);
         }
         StatusWebsocket.sendToAll("stop");
     }
@@ -182,7 +192,7 @@ public class GuitarPlayer implements AutoCloseable {
     }
 
     public void stop() {
-        this.isStopped = true;
+        executorService.shutdownNow();
     }
 
     void prepareStringPressFredAndMovePlectrumToHigh(GuitarNote gn) {
