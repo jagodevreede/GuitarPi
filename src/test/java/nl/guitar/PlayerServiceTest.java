@@ -29,7 +29,7 @@ public class PlayerServiceTest {
     @Test
     public void testTest() {
         playerService.load("test.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -37,7 +37,7 @@ public class PlayerServiceTest {
     @Test
     public void testLoad() {
         playerService.load("ice_winter_rock.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -45,7 +45,7 @@ public class PlayerServiceTest {
     @Test
     public void testKrytonicght() {
         playerService.load("3_doors_down-kryptonite_acoustic_2.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -53,7 +53,7 @@ public class PlayerServiceTest {
     @Test
     public void testbumblebee() {
         playerService.load("flight_of_the_bumblebee.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -61,7 +61,7 @@ public class PlayerServiceTest {
     @Test
     public void testPirates() {
         playerService.load("pirates_of_the_caribbean_full.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -69,7 +69,7 @@ public class PlayerServiceTest {
     @Test
     public void testSlowDown() {
         playerService.load("slow_down_brother.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -77,7 +77,7 @@ public class PlayerServiceTest {
     @Test
     public void testDust() {
         playerService.load("Dust-all.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
     }
@@ -119,7 +119,7 @@ public class PlayerServiceTest {
     @Test
     public void test_chapman_tracy_fast_car_small() {
         playerService.load("chapman_tracy-fast_car_small.xml");
-        playerService.start();
+        playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
         assertEquals(playableGuitarNotes.size(), 5);
