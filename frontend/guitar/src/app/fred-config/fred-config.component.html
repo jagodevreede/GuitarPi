@@ -1,6 +1,7 @@
 <div class="fred-row" *ngFor="let sn of stringNumbers">
   <button type="button" class="btn btn-primary hit" (click)="hit(sn)">Hit {{sn}}</button>
   <button type="button" class="btn btn-info reset" (click)="reset(sn)">Reset {{sn}}</button>
+  <button type="button" class="btn btn-secondary test" (click)="testRow(sn)">Test {{sn}}</button>
   <ng-container *ngFor="let fn of fredNumbers">
     <div class="fred-config" *ngIf="fn % 2 == 0">
       <div class="config-adress">

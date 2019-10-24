@@ -54,4 +54,7 @@ export class FredConfigComponent implements OnInit {
       this.http.get(this.baseUrl + 'test/reset?string=' + stringNumber).subscribe(res => console.log("reset string"));
   }
 
+  testRow(stringNumber: number) {
+      this.http.get(this.baseUrl + 'test/test?string=' + stringNumber).subscribe(res => console.log("test string"));
+  }
 }

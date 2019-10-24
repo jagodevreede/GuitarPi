@@ -18,3 +18,6 @@ A presentation of this project recored at [J-Fall (2018)](https://www.youtube.co
 ##Build UI:
 in folder `/frontend/guitar` call: `ng build --env=prod --deploy-url /ui --base-href /ui`
 
+##Run UI:
+in folder `/frontend/guitar` call: `ng serve`
+

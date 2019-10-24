@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.inject.Singleton;
 import java.io.File;
@@ -13,6 +14,9 @@ import java.util.List;
 
 @Singleton
 public class ConfigRepository {
+    @ConfigProperty(name = "config.folder")
+    String CONFIG_FOLDER;
+
     private static final String PLECTRUM_CONF = "plectrum.conf";
     private static final String FRED_CONF = "fred.conf";
     private static final short HOW_MANY_FRED_ON_STRING = 16;
@@ -21,7 +25,7 @@ public class ConfigRepository {
 
     public List<PlectrumConfig> loadPlectrumConfig() {
         try {
-            File configFile = new File(PLECTRUM_CONF);
+            File configFile = new File(CONFIG_FOLDER + PLECTRUM_CONF);
             if (!configFile.exists()) {
                 List<PlectrumConfig> config = new ArrayList<>();
                 addNoteToPlectrumConfig(config, "E");
@@ -46,7 +50,7 @@ public class ConfigRepository {
 
     public void savePlectrumConfig(List<PlectrumConfig> config) {
         try {
-            File configFile = new File(PLECTRUM_CONF);
+            File configFile = new File(CONFIG_FOLDER + PLECTRUM_CONF);
             om.writeValue(configFile, config);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -55,7 +59,7 @@ public class ConfigRepository {
 
     public List<List<FredConfig>> loadFredConfig() {
         try {
-            File configFile = new File(FRED_CONF);
+            File configFile = new File(CONFIG_FOLDER + FRED_CONF);
             if (!configFile.exists()) {
                 List<List<FredConfig>> config = new ArrayList<>();
                 for (int startNote : stringStartNote) {
@@ -75,7 +79,7 @@ public class ConfigRepository {
 
     public void saveFredConfig(List<List<FredConfig>> config) {
         try {
-            File configFile = new File(FRED_CONF);
+            File configFile = new File(CONFIG_FOLDER + FRED_CONF);
             om.writeValue(configFile, config);
         } catch (IOException e) {
             throw new RuntimeException(e);

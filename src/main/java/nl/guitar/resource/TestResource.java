@@ -1,6 +1,5 @@
 package nl.guitar.resource;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
 import nl.guitar.domain.FredConfig;
@@ -25,9 +24,9 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class TestResource {
-	private static final Logger logger = LoggerFactory.getLogger(TestResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestResource.class);
+    public static final String PUSH = "push";
 
-    private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPosition = new int[] { -1, -1, -1, -1, -1, -1 };
 
 	private final ConfigRepository repository;
@@ -40,16 +39,9 @@ public class TestResource {
 
     @GET
     @Path("fred/reset_all")
-    public void testFred() {
-        List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
-        for (List<FredConfig> row: fredConfigs) {
-            for (int i =0; i < row.size(); i+=2) {
-                FredConfig config = row.get(i);
-                if (config.port > -1) {
-                    logger.debug("Reset fred config {} to free", config);
-                    controller.setServoPulse(config.address, config.port, config.free);
-                }
-            }
+    public void testFred() throws InterruptedException {
+        for (int i =0; i < 6; i++) {
+            resetString(i);
         }
     }
 
@@ -63,8 +55,8 @@ public class TestResource {
         float height = stringConfig.soft;
         if (fredPosition[stringNumber] > 0) {
             height = stringConfig.soft + (heightDistance / fredCount * fredPosition[stringNumber]);
-            logger.info("Hit @height: {}", height);
         }
+        logger.info("Hit {}-{} @height: {}", stringNumber, fredPosition[stringNumber], height);
         controller.setServoPulse(stringConfig.adressHeight, stringConfig.portHeight, stringConfig.free);
         Thread.sleep(75);
         controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.up);
@@ -73,6 +65,21 @@ public class TestResource {
         Thread.sleep(75);
 
         controller.setServoPulse(stringConfig.adressPlectrum, stringConfig.portPlectrum, stringConfig.down);
+    }
+
+    @GET
+    @Path("test")// ?string' + stringNumber
+    public void testFred(@QueryParam("string") int stringNumber) throws InterruptedException {
+        List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
+        List<FredConfig> configs = fredConfigs.get(stringNumber);
+        testFred(stringNumber, 0, "free");
+        hitFred(stringNumber);
+        for (int i = 0; i < configs.size(); i ++) {
+            if (configs.get(i).port > 1) {
+                testFred(stringNumber, i, PUSH);
+                hitFred(stringNumber);
+            }
+        }
     }
 
     @GET
@@ -116,16 +123,18 @@ public class TestResource {
             controller.setServoPulse(config.address, config.port, config.free);
         }
         FredConfig config = fredConfigs.get(stringNumber).get(fredNumber);
-        final float pushValue;
-        if ("push".equalsIgnoreCase(pos)) {
-            fredPosition[stringNumber] = fredNumber;
-            pushValue = config.push;
-        } else {
-            fredPosition[stringNumber] = -1;
-            pushValue = config.free;
+        if (config.port > -1) {
+            final float pushValue;
+            if (PUSH.equalsIgnoreCase(pos)) {
+                fredPosition[stringNumber] = fredNumber;
+                pushValue = config.push;
+            } else {
+                fredPosition[stringNumber] = -1;
+                pushValue = config.free;
+            }
+            logger.debug("Testing fred {} on string {} to value {}", fredNumber, stringNumber, pushValue);
+            controller.setServoPulse(config.address, config.port, pushValue);
         }
-        logger.debug("Testing fred {} on string {} to value {}", fredNumber, stringNumber, pushValue);
-        controller.setServoPulse(config.address, config.port, pushValue);
     }
 
 	@GET
