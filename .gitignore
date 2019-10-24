@@ -33,4 +33,4 @@ logs/
 *.class
 
 *.cache
-src/main/resources/META-INF/resources/ui
+src/main/resources/META-INF/resources/ui/
