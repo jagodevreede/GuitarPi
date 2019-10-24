@@ -148,4 +148,11 @@ public class PlayerService {
             throw new RuntimeException(e);
         }
     }
+
+    public void clearCache() {
+        for (File file : new File(MUSIC_FOLDER).listFiles((f) -> f.getName().endsWith(".cache"))) {
+            logger.info("Removed cache file {}", file);
+            file.delete();
+        }
+    }
 }

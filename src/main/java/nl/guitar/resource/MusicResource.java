@@ -60,6 +60,13 @@ public class MusicResource {
 		return Response.ok().build();
 	}
 
+	@POST
+	@Path("clear")
+	public Response clearCache(@Context HttpServletRequest request) {
+		playerService.clearCache();
+		return Response.ok().build();
+	}
+
 	@GET
     @Path("load/{path}")
     @Produces(MediaType.APPLICATION_XML)

@@ -19,6 +19,7 @@
         resetBtn,
         startBtn,
         stopBtn,
+        clearCacheBtn,
         firstNote;
 
     // Initialization code
@@ -37,6 +38,7 @@
         resetBtn = document.getElementById("reset-btn");
         startBtn = document.getElementById("start-btn");
         stopBtn = document.getElementById("stop-btn");
+        clearCacheBtn = document.getElementById("clear-btn");
 
         // Hide error
         error();
@@ -98,6 +100,9 @@
         });
         resetBtn.addEventListener("click", function() {
             $.post( "/api/music/reset");
+        });
+        clearCacheBtn.addEventListener("click", function() {
+            $.post( "/api/music/clear");
         });
     }
 
