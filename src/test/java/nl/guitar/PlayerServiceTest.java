@@ -24,6 +24,7 @@ public class PlayerServiceTest {
         Controller controller = new NoOpController();
         guitarPlayer = new GuitarPlayer(controller, new ConfigRepository());
         playerService = new PlayerService(guitarPlayer);
+        playerService.MUSIC_FOLDER = "music/";
     }
 
     @Test

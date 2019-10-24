@@ -14,6 +14,7 @@ import org.jfugue.theory.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -21,6 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Singleton
 public class GuitarPlayer implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(GuitarPlayer.class);
     public static final int PREPARE_TIME = 150;

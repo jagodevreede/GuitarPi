@@ -1,24 +1,21 @@
 package nl.guitar;
 
-import com.codahale.metrics.annotation.Metered;
-import com.codahale.metrics.annotation.Timed;
-import nl.guitar.player.GuitarPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.Session;
+import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
+import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@Metered
-@Timed
 @ServerEndpoint("/status-ws")
+@ApplicationScoped
 public class StatusWebsocket {
     private static final Logger logger = LoggerFactory.getLogger(StatusWebsocket.class);
 

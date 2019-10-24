@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 public class ConfigRepository {
     private static final String PLECTRUM_CONF = "plectrum.conf";
     private static final String FRED_CONF = "fred.conf";

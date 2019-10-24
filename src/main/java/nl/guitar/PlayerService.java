@@ -13,10 +13,12 @@ import nl.guitar.player.object.GuitarAction;
 import nl.guitar.player.tuning.DefaultTuning;
 import nl.guitar.player.tuning.GuitarTuning;
 import nu.xom.ParsingException;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jfugue.integration.MusicXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import static nl.guitar.util.FileUtil.toSHA1;
 
+@Singleton
 public class PlayerService {
     private static final Logger logger = LoggerFactory.getLogger(PlayerService.class);
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -38,7 +41,8 @@ public class PlayerService {
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 
-    public static final String MUSIC_FOLDER = "music/";
+    @ConfigProperty(name = "music.folder")
+    String MUSIC_FOLDER;
     private GuitarPlayer guitarPlayer;
     private String fileContents;
 
@@ -50,6 +54,7 @@ public class PlayerService {
 
     public List<String> getAvailableMusic() {
         List<String> result = new ArrayList<>();
+        logger.info("Loading music from: {}", MUSIC_FOLDER);
         for (File file : new File(MUSIC_FOLDER).listFiles((f) -> f.getName().endsWith(".xml"))) {
             result.add(file.getName().substring(0, file.getName().length() - 4));
         }
@@ -79,12 +84,17 @@ public class PlayerService {
         startWithCache(true);
     }
 
-    public void startWithCache(boolean useCache) {
+    void startWithCache(boolean useCache) {
         try {
             String hash = toSHA1(fileContents);
             File cacheFile = new File(MUSIC_FOLDER + "/" + hash + "-" + guitarTuning.getClass().getSimpleName() + ".cache");
-            List<GuitarAction> result = readListFromFile(cacheFile);
-            if (result == null || !useCache) {
+            List<GuitarAction> result;
+            if (useCache) {
+                result = readListFromFile(cacheFile);
+            } else {
+                result = null;
+            }
+            if (result == null) {
                 logger.info("Creating cache file {}", cacheFile.getName());
                 MusicXmlParser parser = new MusicXmlParser();
                 MusicXmlParserListener simpleParserListener = new MusicXmlParserListener(guitarPlayer, guitarTuning);

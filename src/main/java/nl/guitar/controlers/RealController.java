@@ -5,8 +5,6 @@ import i2c.servo.pwm.PCA9685;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
 public class RealController extends RealTimeController  {
     private static final Logger logger = LoggerFactory.getLogger(RealController.class);
     private static final int updateFrequencyHz = 100; // max 200
@@ -16,11 +14,16 @@ public class RealController extends RealTimeController  {
     static {
         try {
             logger.info("Starting REAL controller (works only on the PI)");
-            servoBoards = new PCA9685[]{ new PCA9685(0x40), new PCA9685(0x41), new PCA9685(0x42), new PCA9685(0x48) };
+            servoBoards = new PCA9685[] {
+                    new PCA9685(0x40),
+                    new PCA9685(0x41),
+                    new PCA9685(0x42)
+                    //new PCA9685(0x48)
+            };
             servoBoards[0].setPWMFreq(updateFrequencyHz);
             servoBoards[1].setPWMFreq(updateFrequencyHz);
             servoBoards[2].setPWMFreq(updateFrequencyHz);
-            servoBoards[2].setPWMFreq(updateFrequencyHz);
+            //servoBoards[3].setPWMFreq(updateFrequencyHz);
         } catch (I2CFactory.UnsupportedBusNumberException | UnsatisfiedLinkError e) {
             logger.error("Failed to load real guitar player", e);
             throw new RuntimeException(e);
