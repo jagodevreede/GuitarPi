@@ -46,7 +46,7 @@ public class PlayerService {
     private GuitarPlayer guitarPlayer;
     private String fileContents;
 
-    private GuitarTuning guitarTuning = new DefaultTuning();
+    private GuitarTuning guitarTuning = new DropDTuning();
 
     PlayerService(GuitarPlayer guitarPlayer) {
         this.guitarPlayer = guitarPlayer;
