@@ -40,7 +40,6 @@ public class DiagnosticParserListener implements ParserListener
     public DiagnosticParserListener() { }
     
     private void print(String message) {
-        System.out.println(message);
         logger.info(message);
     }
 

@@ -407,9 +407,6 @@ public final class MusicXmlParser extends Parser {
 					}
 					value = sound.getAttributeValue("tempo");
 					if (value != null) {
-						for (MidiInstrument mi : currentPart.instruments) {
-							System.out.println(mi);
-						}
 						fireTempoChanged((int) Float.parseFloat(value));
 					}
 				}
