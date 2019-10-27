@@ -10,7 +10,7 @@ import com.google.common.io.Resources;
 import nl.guitar.musicxml.MusicXmlParserListener;
 import nl.guitar.player.GuitarPlayer;
 import nl.guitar.player.object.GuitarAction;
-import nl.guitar.player.tuning.DefaultTuning;
+import nl.guitar.player.tuning.DropDTuning;
 import nl.guitar.player.tuning.GuitarTuning;
 import nu.xom.ParsingException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -42,7 +42,7 @@ public class PlayerService {
     }
 
     @ConfigProperty(name = "music.folder")
-    String MUSIC_FOLDER;
+    String MUSIC_FOLDER = "./";
     private GuitarPlayer guitarPlayer;
     private String fileContents;
 
@@ -66,14 +66,18 @@ public class PlayerService {
         return fileContents;
     }
 
-    public void load(String folder, String fileToPlay) {
+    public void load(String folder, String fileToPlay, String dtdFolder) {
         try {
             URL url = new File(folder + fileToPlay).toURI().toURL();
             fileContents = Resources.toString(url, Charsets.UTF_8);
-            fileContents = fileContents.replaceAll("http://www.musicxml.org/dtds/partwise.dtd", "musicxml/partwise.dtd");
+            fileContents = fileContents.replaceAll("http://www.musicxml.org/dtds/partwise.dtd", dtdFolder + "/partwise.dtd");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void load(String folder, String fileToPlay) {
+        load(folder, fileToPlay, "musicxml");
     }
 
     public void load(String fileToPlay) {

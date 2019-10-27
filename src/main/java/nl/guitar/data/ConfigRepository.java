@@ -15,7 +15,7 @@ import java.util.List;
 @Singleton
 public class ConfigRepository {
     @ConfigProperty(name = "config.folder")
-    String CONFIG_FOLDER;
+    String CONFIG_FOLDER = "./";
 
     private static final String PLECTRUM_CONF = "plectrum.conf";
     private static final String FRED_CONF = "fred.conf";
