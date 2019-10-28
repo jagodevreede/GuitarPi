@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import nl.guitar.data.ConfigRepository;
 import nl.guitar.musicxml.MusicXmlParserListener;
 import nl.guitar.player.GuitarPlayer;
 import nl.guitar.player.object.GuitarAction;
@@ -18,6 +19,7 @@ import org.jfugue.integration.MusicXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -46,10 +48,11 @@ public class PlayerService {
     private GuitarPlayer guitarPlayer;
     private String fileContents;
 
-    private GuitarTuning guitarTuning = new DropDTuning();
+    private GuitarTuning guitarTuning;
 
-    PlayerService(GuitarPlayer guitarPlayer) {
+    PlayerService(GuitarPlayer guitarPlayer, ConfigRepository configRepository) {
         this.guitarPlayer = guitarPlayer;
+        guitarTuning = new DropDTuning(configRepository);
     }
 
     public List<String> getAvailableMusic() {

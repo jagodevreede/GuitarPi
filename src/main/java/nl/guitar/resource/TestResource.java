@@ -73,11 +73,16 @@ public class TestResource {
         List<List<FredConfig>> fredConfigs = repository.loadFredConfig();
         List<FredConfig> configs = fredConfigs.get(stringNumber);
         testFred(stringNumber, 0, "free");
+        Thread.sleep(GuitarPlayer.PREPARE_TIME);
         hitFred(stringNumber);
+        Thread.sleep(500);
         for (int i = 0; i < configs.size(); i ++) {
             if (configs.get(i).port > 1) {
                 testFred(stringNumber, i, PUSH);
+                Thread.sleep(GuitarPlayer.PREPARE_TIME);
                 hitFred(stringNumber);
+                Thread.sleep(500);
+                testFred(stringNumber, i, "free");
             }
         }
     }

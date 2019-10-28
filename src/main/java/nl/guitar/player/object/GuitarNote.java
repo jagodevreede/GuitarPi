@@ -40,13 +40,13 @@ public class GuitarNote {
         }
         if (!possibleStringNumber.isEmpty()) {
             Optional<Short> firstString = stringStrategy.getBestString(possibleStringNumber, stringsTaken, note.getValue());
-            logger.warn("[" + stringStrategy.getClass().getSimpleName() + "] No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "] => " + Arrays.toString(stringsTaken));
             stringNumber = firstString.orElse(NO_STRING);
         }
         if (stringNumber >= 0) {
             fred = noteValue - guitarTuning.getStartNote(stringNumber);
         } else {
             hit = false;
+            logger.warn("[" + stringStrategy.getClass().getSimpleName() + "] No Strings available for note " + noteValue + "[" + guitarTuning.getStartNote(0) + " - " + guitarTuning.getEndNote(5) + "] => " + Arrays.toString(stringsTaken));
         }
     }
 

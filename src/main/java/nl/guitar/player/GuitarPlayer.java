@@ -1,5 +1,6 @@
 package nl.guitar.player;
 
+import io.quarkus.runtime.StartupEvent;
 import nl.guitar.StatusWebsocket;
 import nl.guitar.controlers.Controller;
 import nl.guitar.data.ConfigRepository;
@@ -14,6 +15,7 @@ import org.jfugue.theory.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
@@ -308,6 +310,10 @@ public class GuitarPlayer implements AutoCloseable {
             Thread.sleep(PREPARE_TIME);
             controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
         }
+    }
+
+    void onStart(@Observes StartupEvent ev) {
+        logger.info("GuitartPi is starting...");
     }
 
 }
