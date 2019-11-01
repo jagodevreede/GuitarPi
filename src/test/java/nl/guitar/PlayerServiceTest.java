@@ -27,8 +27,9 @@ public class PlayerServiceTest {
     @BeforeClass
     public void setUp() {
         Controller controller = new NoOpController();
-        guitarPlayer = new GuitarPlayer(controller, new ConfigRepository());
-        playerService = new PlayerService(guitarPlayer);
+        ConfigRepository configRepository = new ConfigRepository();
+        guitarPlayer = new GuitarPlayer(controller, configRepository);
+        playerService = new PlayerService(guitarPlayer, configRepository);
     }
 
     @AfterClass

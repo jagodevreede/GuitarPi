@@ -2,9 +2,12 @@ package nl.guitar.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import nl.guitar.domain.FredConfig;
 import nl.guitar.domain.PlectrumConfig;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import java.io.File;
@@ -14,8 +17,13 @@ import java.util.List;
 
 @Singleton
 public class ConfigRepository {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigRepository.class);
+
     @ConfigProperty(name = "config.folder")
     String CONFIG_FOLDER = "./";
+
+    @ConfigProperty(name = "controller")
+    String controller;
 
     private static final String PLECTRUM_CONF = "plectrum.conf";
     private static final String FRED_CONF = "fred.conf";
@@ -23,10 +31,18 @@ public class ConfigRepository {
     private static final int[] stringStartNote = new int[] { 28, 33, 38, 43, 47, 52};
     private static final ObjectMapper om = new ObjectMapper();
 
+    static {
+        om.enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
     public List<PlectrumConfig> loadPlectrumConfig() {
         try {
             File configFile = new File(CONFIG_FOLDER + PLECTRUM_CONF);
             if (!configFile.exists()) {
+                if ("RealController".equals(controller)) {
+                    throw new IllegalStateException("Won't create new config if real controller is enabled");
+                }
+                logger.warn("Unable to find {} so creating a new one", configFile);
                 List<PlectrumConfig> config = new ArrayList<>();
                 addNoteToPlectrumConfig(config, "E");
                 addNoteToPlectrumConfig(config, "B");
@@ -61,6 +77,10 @@ public class ConfigRepository {
         try {
             File configFile = new File(CONFIG_FOLDER + FRED_CONF);
             if (!configFile.exists()) {
+                if ("RealController".equals(controller)) {
+                    throw new IllegalStateException("Won't create new config if real controller is enabled");
+                }
+                logger.warn("Unable to find {} so creating a new one", configFile);
                 List<List<FredConfig>> config = new ArrayList<>();
                 for (int startNote : stringStartNote) {
                     List<FredConfig> stringConfig = new ArrayList<>();

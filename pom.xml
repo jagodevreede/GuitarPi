@@ -8,7 +8,7 @@
   <properties>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <surefire-plugin.version>2.22.0</surefire-plugin.version>
-    <quarkus.version>0.22.0</quarkus.version>
+    <quarkus.version>0.27.0</quarkus.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -129,6 +129,14 @@
                 </configuration>
               </execution>
             </executions>
+            <configuration>
+              <source>${maven.compiler.source}</source>
+              <target>${maven.compiler.target}</target>
+              <compilerArgs>
+                <arg>--enable-preview</arg>
+              </compilerArgs>
+              <jvmArgs>--enable-preview</jvmArgs>
+            </configuration>
           </plugin>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>

@@ -28,13 +28,11 @@ import java.util.stream.Collectors;
 public class GuitarPlayer implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(GuitarPlayer.class);
     public static final int PREPARE_TIME = 150;
-    public static final int MINIMUM_MS_BETWEEN_NOTES = 150;
     protected final Controller controller;
-    protected final ConfigRepository configRepository;
+    private final ConfigRepository configRepository;
     private int notesBarsPlayed;
     private float tempo = 60;
     private List<GuitarAction> lastPlayedActions;
-
 
     private List<PlectrumConfig> plectrumConfig;
     private List<List<FredConfig>> fredConfig;
@@ -42,6 +40,10 @@ public class GuitarPlayer implements AutoCloseable {
     private boolean[] isStringUp = new boolean[] { true, true, true, true, true, true };
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
     private long[] fredCount = new long[] { 0, 0, 0, 0, 0, 0 };
+
+    void onStart(@Observes StartupEvent ev) {
+        logger.info("GuitarPi is starting...");
+    }
 
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
@@ -153,19 +155,14 @@ public class GuitarPlayer implements AutoCloseable {
     private ThreadPoolExecutor executorService = null;
 
     public void playActions(List<GuitarAction> guitarActions) {
-        executorService = new ThreadPoolExecutor(2, 2,
-                60L, TimeUnit.SECONDS,
+        executorService = new ThreadPoolExecutor(4, 4,60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>());
-        reloadConfig();
-        this.lastPlayedActions = new ArrayList<>(guitarActions);
         initStrings();
-        StatusWebsocket.sendToAll("start");
         controller.start(PREPARE_TIME);
         for (GuitarAction action : guitarActions) {
             executorService.execute(() -> {
                     controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);
                 playNotes(action.notesToPlay, action.timeStamp);
-                StatusWebsocket.sendToAll("next");
             });
         }
         try {
@@ -310,10 +307,6 @@ public class GuitarPlayer implements AutoCloseable {
             Thread.sleep(PREPARE_TIME);
             controller.setServoPulse(config.adressPlectrum, config.portPlectrum, config.up);
         }
-    }
-
-    void onStart(@Observes StartupEvent ev) {
-        logger.info("GuitartPi is starting...");
     }
 
 }
