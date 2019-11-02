@@ -11,6 +11,7 @@ import nl.guitar.player.object.GuitarNote;
 import nl.guitar.player.object.NoteComparator;
 import nl.guitar.player.strategy.StringStrategy;
 import nl.guitar.player.tuning.GuitarTuning;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jfugue.theory.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,9 @@ public class GuitarPlayer implements AutoCloseable {
     private int[] fredPressed = new int[] { 0, 0, 0, 0, 0, 0 };
     private long[] fredCount = new long[] { 0, 0, 0, 0, 0, 0 };
 
+    @ConfigProperty(name = "reset.on.startup", defaultValue = "true")
+    String RESET_ON_STARTUP = "true";
+
     void onStart(@Observes StartupEvent ev) {
         logger.info("GuitarPi is starting...");
     }
@@ -48,11 +52,15 @@ public class GuitarPlayer implements AutoCloseable {
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
         this.configRepository = configRepository;
-        try {
-            close();
-        } catch (InterruptedException  e) {
-            logger.error("Failed to load guitar player", e);
-            throw new RuntimeException(e);
+        if (Boolean.valueOf(RESET_ON_STARTUP)) {
+            try {
+                close();
+            } catch (InterruptedException e) {
+                logger.error("Failed to load guitar player", e);
+                throw new RuntimeException(e);
+            }
+        } else {
+            logger.info("Not resetting freds as config set to skip");
         }
         logger.info("Guitar player ready!");
         this.resetFreds();

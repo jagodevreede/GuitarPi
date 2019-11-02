@@ -19,7 +19,6 @@ import org.jfugue.integration.MusicXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -53,6 +52,7 @@ public class PlayerService {
     PlayerService(GuitarPlayer guitarPlayer, ConfigRepository configRepository) {
         this.guitarPlayer = guitarPlayer;
         guitarTuning = new DropDTuning(configRepository);
+        clearCache();
     }
 
     public List<String> getAvailableMusic() {
@@ -80,7 +80,7 @@ public class PlayerService {
     }
 
     public void load(String folder, String fileToPlay) {
-        load(folder, fileToPlay, "musicxml");
+        load(folder, fileToPlay, "../musicxml");
     }
 
     public void load(String fileToPlay) {
