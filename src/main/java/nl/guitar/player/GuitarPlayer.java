@@ -52,7 +52,7 @@ public class GuitarPlayer implements AutoCloseable {
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
         this.configRepository = configRepository;
-        if (Boolean.valueOf(RESET_ON_STARTUP)) {
+        if (Boolean.parseBoolean(RESET_ON_STARTUP)) {
             try {
                 close();
             } catch (InterruptedException e) {
