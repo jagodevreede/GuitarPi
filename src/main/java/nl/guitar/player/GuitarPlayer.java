@@ -50,7 +50,6 @@ public class GuitarPlayer implements AutoCloseable {
         this.configRepository = configRepository;
         try {
             close();
-            controller.waitMilliseconds(1000);
         } catch (InterruptedException  e) {
             logger.error("Failed to load guitar player", e);
             throw new RuntimeException(e);
@@ -157,12 +156,16 @@ public class GuitarPlayer implements AutoCloseable {
     public void playActions(List<GuitarAction> guitarActions) {
         executorService = new ThreadPoolExecutor(4, 4,60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>());
+        reloadConfig();
+        this.lastPlayedActions = new ArrayList<>(guitarActions);
         initStrings();
+        StatusWebsocket.sendToAll("start");
         controller.start(PREPARE_TIME);
         for (GuitarAction action : guitarActions) {
             executorService.execute(() -> {
                     controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);
                 playNotes(action.notesToPlay, action.timeStamp);
+                StatusWebsocket.sendToAll("next");
             });
         }
         try {
@@ -175,7 +178,7 @@ public class GuitarPlayer implements AutoCloseable {
     }
 
     private void initStrings() {
-        List<PlectrumConfig> plectrumConfig = configRepository.loadPlectrumConfig();
+        reloadConfig();
         for (int i = 0; i < 6; i++) {
             PlectrumConfig config = plectrumConfig.get(i);
             controller.setServoPulse(config.adressHeight, config.portHeight, config.soft);
@@ -210,7 +213,7 @@ public class GuitarPlayer implements AutoCloseable {
             }
             fredPressed[stringNumber] = fredNumber;
             if (fredNumber > 0) {
-                logger.trace("Press fred " + fredNumber);
+                logger.trace("Press fred {}", fredNumber);
                 FredConfig fc = fredConfig.get(stringNumber).get(fredNumber - 1);
                 controller.setServoPulse(fc.address, fc.port, fc.push);
             }
