@@ -16,6 +16,7 @@ import org.jfugue.theory.Note;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -52,6 +53,10 @@ public class GuitarPlayer implements AutoCloseable {
     public GuitarPlayer(Controller controller, ConfigRepository configRepository) {
         this.controller = controller;
         this.configRepository = configRepository;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
         if (Boolean.parseBoolean(RESET_ON_STARTUP)) {
             try {
                 close();
@@ -60,7 +65,7 @@ public class GuitarPlayer implements AutoCloseable {
                 throw new RuntimeException(e);
             }
         } else {
-            logger.info("Not resetting freds as config set to skip");
+            logger.info("Not resetting frets as config set to skip");
         }
         logger.info("Guitar player ready!");
         this.resetFreds();
@@ -105,7 +110,7 @@ public class GuitarPlayer implements AutoCloseable {
 
             List<Short> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).filter(s -> s >= 0).distinct().collect(Collectors.toList());
             if (notesToPlay.size() > distinctStrings.size()) {
-                logger.error("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings + " time since last note:" + (lastAction != null ? lastAction.timeTillNextNote : -10));
+                logger.debug("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings + " time since last note:" + (lastAction != null ? lastAction.timeTillNextNote : -10));
                 //notesToPlay.forEach((n) -> logger.error(n.toString()));
                 //throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings);
             }
@@ -140,6 +145,7 @@ public class GuitarPlayer implements AutoCloseable {
                 .max(Integer::compare)
                 .toString();
         logger.info("  Errors: {}", actions.stream().filter(a -> a.error != null).count());
+        actions.stream().filter(a -> a.error != null).forEach(a -> logger.info("   - Error @{}: {}", a.instructionNumber, a.error));
         logger.info("  Shortest note {}ms", shortestNote);
         logger.info("  Lowest note {}", lowestNote);
         logger.info("  Highest note {}", highestNote);
@@ -168,7 +174,7 @@ public class GuitarPlayer implements AutoCloseable {
         this.lastPlayedActions = new ArrayList<>(guitarActions);
         initStrings();
         StatusWebsocket.sendToAll("start");
-        controller.start(PREPARE_TIME);
+        controller.start(PREPARE_TIME + 500);
         for (GuitarAction action : guitarActions) {
             executorService.execute(() -> {
                     controller.waitUntilTimestamp(action.timeStamp - PREPARE_TIME);

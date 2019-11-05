@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class PlayerServiceTest {
 
@@ -30,6 +31,8 @@ public class PlayerServiceTest {
         ConfigRepository configRepository = new ConfigRepository();
         guitarPlayer = new GuitarPlayer(controller, configRepository);
         playerService = new PlayerService(guitarPlayer, configRepository);
+        guitarPlayer.postConstruct();
+        playerService.postConstruct();
     }
 
     @AfterClass
@@ -80,6 +83,14 @@ public class PlayerServiceTest {
     @Test
     public void testSlowDown() {
         playerService.load(DEFAULT_MUSIC_FOLDER, "slow_down_brother.xml", DTD_FOLDER_TEST);
+        playerService.startWithCache(false);
+        List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
+        assertEquals(getErrors(actions), "", "There should be no errors");
+    }
+
+    @Test
+    public void testDevoxx() {
+        playerService.load(DEFAULT_MUSIC_FOLDER, "Devoxx.xml", DTD_FOLDER_TEST);
         playerService.startWithCache(false);
         List<GuitarAction> actions = guitarPlayer.getLastPlayedActions();
         assertEquals(getErrors(actions), "", "There should be no errors");
@@ -160,6 +171,7 @@ public class PlayerServiceTest {
         List<GuitarNote> playableGuitarNotes = getPlayableNotes(actions);
         assertEquals(getErrors(actions), "", "There should be no errors");
         assertEquals(playableGuitarNotes.size(), 3);
+        assertTrue(actions.get(actions.size() -1).timeStamp != 0, "Last timestamp should not be 0");
     }
 
     private List<GuitarNote> getPlayableNotes(List<GuitarAction> actions) {

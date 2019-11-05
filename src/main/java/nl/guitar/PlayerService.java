@@ -19,6 +19,7 @@ import org.jfugue.integration.MusicXmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -52,6 +53,10 @@ public class PlayerService {
     PlayerService(GuitarPlayer guitarPlayer, ConfigRepository configRepository) {
         this.guitarPlayer = guitarPlayer;
         guitarTuning = new DropDTuning(configRepository);
+    }
+
+    @PostConstruct
+    void postConstruct() {
         clearCache();
     }
 
@@ -114,6 +119,7 @@ public class PlayerService {
                 mapper.writeValue(cacheFile, result);
             }
 
+            guitarPlayer.printStats(result);
             guitarPlayer.resetFreds();
 
             guitarPlayer.playActions(result);
@@ -157,7 +163,9 @@ public class PlayerService {
     }
 
     public void clearCache() {
-        for (File file : new File(MUSIC_FOLDER).listFiles((f) -> f.getName().endsWith(".cache"))) {
+        final File[] cacheFiles = new File(MUSIC_FOLDER).listFiles((f) -> f.getName().endsWith(".cache"));
+        logger.info("Clearing cache {} files in {}", cacheFiles.length, new File(MUSIC_FOLDER).getAbsoluteFile());
+        for (File file : cacheFiles) {
             logger.info("Removed cache file {}", file);
             file.delete();
         }

@@ -61,10 +61,10 @@ public class MusicXmlParserListener extends ParserListenerAdapter {
         try {
             logger.debug("Parse done in {}ms", System.currentTimeMillis() - parseStartTime);
             GuitarAction bestAction = getBestAction();
+            bestAction.timeStamp = currentTimestamp;
             if (!bestAction.notesToPlay.isEmpty()) {
                 guitarActions.add(bestAction);
             }
-            guitarPlayer.printStats(guitarActions);
             notes.clear();
             lastAction = null;
             System.gc();
