@@ -39,23 +39,27 @@ public class ConfigRepository {
         try {
             File configFile = new File(CONFIG_FOLDER + PLECTRUM_CONF);
             if (!configFile.exists()) {
-                if ("RealController".equals(controller)) {
-                    throw new IllegalStateException("Won't create new config if real controller is enabled");
-                }
-                logger.warn("Unable to find {} so creating a new one", configFile);
-                List<PlectrumConfig> config = new ArrayList<>();
-                addNoteToPlectrumConfig(config, "E");
-                addNoteToPlectrumConfig(config, "B");
-                addNoteToPlectrumConfig(config, "G");
-                addNoteToPlectrumConfig(config, "D");
-                addNoteToPlectrumConfig(config, "A");
-                addNoteToPlectrumConfig(config, "e");
-                savePlectrumConfig(config);
+                createDefaultPlectrumConfig(configFile);
             }
             return om.readValue(configFile, new TypeReference<List<PlectrumConfig>>() {});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void createDefaultPlectrumConfig(File configFile) {
+        if ("RealController".equals(controller)) {
+            throw new IllegalStateException("Won't create new config if real controller is enabled");
+        }
+        logger.warn("Unable to find {} so creating a new one", configFile);
+        List<PlectrumConfig> config = new ArrayList<>();
+        addNoteToPlectrumConfig(config, "E");
+        addNoteToPlectrumConfig(config, "B");
+        addNoteToPlectrumConfig(config, "G");
+        addNoteToPlectrumConfig(config, "D");
+        addNoteToPlectrumConfig(config, "A");
+        addNoteToPlectrumConfig(config, "e");
+        savePlectrumConfig(config);
     }
 
     private void addNoteToPlectrumConfig(List<PlectrumConfig> config, String note) {

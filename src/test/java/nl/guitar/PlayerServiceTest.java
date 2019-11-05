@@ -18,7 +18,7 @@ import static org.testng.Assert.assertEquals;
 
 public class PlayerServiceTest {
 
-    private static final String DTD_FOLDER_TEST = "src/main/resources/musicxml";
+    private static final String DTD_FOLDER_TEST = "./musicxml";
     private static final String DEFAULT_MUSIC_FOLDER = "music/";
     private static final String TEST_MUSIC_FOLDER = "src/test/resources/";
     private PlayerService playerService;
