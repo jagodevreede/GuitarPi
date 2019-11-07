@@ -21,6 +21,7 @@ import javax.enterprise.event.Observes;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -111,8 +112,6 @@ public class GuitarPlayer implements AutoCloseable {
             List<Short> distinctStrings = notesToPlay.stream().map(GuitarNote::getStringNumber).filter(s -> s >= 0).distinct().collect(Collectors.toList());
             if (notesToPlay.size() > distinctStrings.size()) {
                 logger.debug("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings + " time since last note:" + (lastAction != null ? lastAction.timeTillNextNote : -10));
-                //notesToPlay.forEach((n) -> logger.error(n.toString()));
-                //throw new IllegalStateException("Want to play a sting multiple times on note: " + notesBarsPlayed + " on string " + distinctStrings);
             }
 
             action.notesToPlay = notesToPlay;
@@ -129,10 +128,11 @@ public class GuitarPlayer implements AutoCloseable {
             logger.info("  No actions!");
             return;
         }
-        String shortestNote = actions.stream()
+        LongSummaryStatistics durationStats = actions.stream()
                 .map((GuitarAction a) -> a.timeTillNextNote)
-                .min(Long::compare)
-                .toString();
+                .collect(LongSummaryStatistics::new,
+                        LongSummaryStatistics::accept,
+                        LongSummaryStatistics::combine);
         final List<Integer> notes = actions.stream()
                 .flatMap((GuitarAction a) -> a.notesToPlay.stream()
                         .map(GuitarNote::getNoteValue)
@@ -146,7 +146,8 @@ public class GuitarPlayer implements AutoCloseable {
                 .toString();
         logger.info("  Errors: {}", actions.stream().filter(a -> a.error != null).count());
         actions.stream().filter(a -> a.error != null).forEach(a -> logger.info("   - Error @{}: {}", a.instructionNumber, a.error));
-        logger.info("  Shortest note {}ms", shortestNote);
+        logger.info("  Shortest note {}ms", durationStats.getMin());
+        logger.info("  Average note {}ms", durationStats.getAverage());
         logger.info("  Lowest note {}", lowestNote);
         logger.info("  Highest note {}", highestNote);
     }
