@@ -403,7 +403,7 @@ public final class MusicXmlParser extends Parser {
 				if (sound != null) {
 					String value = sound.getAttributeValue("dynamics");
 					if (value != null) {
-						currentPart.currentVolume = Byte.parseByte(value);
+						currentPart.currentVolume = (byte) Float.parseFloat(value);
 					}
 					value = sound.getAttributeValue("tempo");
 					if (value != null) {
