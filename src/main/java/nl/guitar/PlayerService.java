@@ -126,7 +126,7 @@ public class PlayerService {
             logger.info("Done playing");
 
             guitarPlayer.resetFreds();
-        } catch (IOException | ParsingException | ParserConfigurationException e) {
+        } catch (Exception e) {
             logger.error("Failed to load score", e);
             throw new RuntimeException(e);
         }
@@ -139,7 +139,7 @@ public class PlayerService {
             try (InputStream is = new FileInputStream(file)) {
                 List<GuitarAction> result = mapper.readValue(is, new TypeReference<List<GuitarAction>>() {
                 });
-                logger.info("Reading cache file {} done in {}ms", System.currentTimeMillis() - startTime);
+                logger.info("Reading cache file {} done in {}ms", file, System.currentTimeMillis() - startTime);
                 return result;
             } catch (IOException ioe) {
                 logger.error("Failed to load file", ioe);
